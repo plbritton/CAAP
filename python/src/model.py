@@ -1,6 +1,8 @@
 import pandas as pd
 import edgar
+import requests
 from datetime import date
+
 class Company:
     def __init__(self, name: str, symbol: str, CIK: str):
         self.name = name
@@ -9,43 +11,53 @@ class Company:
 
 autozone = Company("Autozone Inc", "AZO", "0000866787")
 
-download_path = "C:\\Users\\canon\\PycharmProjects\\CAAP\\sample_index"
-base_url = "https://www.sec.gov/Archives/"
-#pulling index file from EDGAR
-edgar.download_index(download_path, 2018, "Univ. of Memphis Capstone Project", skip_all_present_except_last = False)
+#CONFIG
+BASE_URL = "https://www.sec.gov/Archives/"
+companies = [Company("Autozone Inc", "AZO", "0000866787"), Company("O REILLY AUTOMOTIVE INC", "ORLY", "0000898173")]
+DOWNLOAD_PATH = "sample_index"
+HEADER = {"User-Agent":"Univ. of Memphis Capstone Project"}
 
-companies = ["AUTOZONE INC", "O REILLY AUTOMOTIVE INC"]
-desired_report = "10-Q"
+def update_index():
+    """
+    Updates the index files, which are used to locate the correct report url.
 
-#convert 2019 Quarter 4 index to csv
-csv = pd.read_csv(f"{download_path}\\2019-QTR4.tsv", sep = "\t", lineterminator = "\n")
+    :return: None
+    """
 
-csv.columns.values[0] = "Items"
-reports = []
+    edgar.download_index(DOWNLOAD_PATH, 2018, "Univ. of Memphis Capstone Project", skip_all_present_except_last = False)
 
-#filters out unneeded companies and reports
-for c in companies:
+def get_report(company : Company, report_name : str, year = date.today().year-1, quarter = 1):
+    '''
+    Locates webpage containing the specified report for the given company, year, and quarter
 
-    company_report = csv[csv["Items"].str.contains(c) & csv["Items"].str.contains(desired_report)]
+    :param company: A Company object representing the desired company
+    :param report_name: The name of the report, i.e. 10-Q, 10-K, etc
+    :return: the URL for the report's webpage
+    '''
 
-    filing = company_report["Items"].str.split("|").to_list()
+    #convert {year quarter} index to csv and filter out unneeded reports/companies
+    try:
+        csv = pd.read_csv(f"{DOWNLOAD_PATH}\\{year}-QTR{quarter}.tsv", sep = "\t", lineterminator = "\n")
+        csv.columns.values[0] = "Items"
+        company_report = csv[csv["Items"].str.contains(str(int(company.CIK))) & csv["Items"].str.contains(report_name)]
+        filing = company_report["Items"].str.split("|").to_list()[0]
+    except IndexError as ie:
+        print("That report must not be available :/")
 
-    #finds SEC url for given company
-    for item in filing[0]:
+    #finds SEC url for given company report
+    for item in filing:
         if "html" in item:
-            reports.append(item[:-1])
+            extension = item[:-1]
+    url = BASE_URL + extension
 
-#add urls to base url
-urls = list(map(lambda x : base_url+x, reports))
-print(urls)
+    #get webpage
+    r = requests.get(url, headers=HEADER)
+    df = pd.read_html(r.text)
+    doc_index = df[0].dropna()
+    doc_name = doc_index[doc_index["Description"].str.contains(report_name)]
+    doc_name = doc_name["Document"].str.split("|")[0][0]
+    final = BASE_URL + extension.replace("-","").replace("index.html","") + "/" + doc_name
+    return final
 
-df = pd.read_html(urls[0])
-doc_index = df[0].dropna()
 
-#provides url
-doc_name = doc_index[doc_index["Description"].str.contains(desired_report)]
-doc_name = doc_name["Document"].str.split("|")
-doc_name = doc_name[0][0]
-
-final = reports[0].replace("-","".replace("index.html",""))
-print(final)
+webpage = get_report(companies[1], "10-K", 2020, 1)
