@@ -1,3 +1,4 @@
+from lxml import etree
 import pandas as pd
 import edgar
 import requests
@@ -13,18 +14,20 @@ autozone = Company("Autozone Inc", "AZO", "0000866787")
 
 #CONFIG
 BASE_URL = "https://www.sec.gov/Archives/"
+XBRL = "https://www.sec.gov/ix?doc=/Archives/"
 companies = [Company("Autozone Inc", "AZO", "0000866787"), Company("O REILLY AUTOMOTIVE INC", "ORLY", "0000898173")]
 DOWNLOAD_PATH = "sample_index"
-HEADER = {"User-Agent":"Univ. of Memphis Capstone Project"}
+USER_AGENT = "Univ. of Memphis Capstone Project"
+HEADER = {"User-Agent":USER_AGENT}
 
 def update_index():
-    """
+    '''
     Updates the index files, which are used to locate the correct report url.
 
     :return: None
-    """
+    '''
 
-    edgar.download_index(DOWNLOAD_PATH, 2018, "Univ. of Memphis Capstone Project", skip_all_present_except_last = False)
+    edgar.download_index(DOWNLOAD_PATH, 2018, USER_AGENT, skip_all_present_except_last = False)
 
 def get_report(company : Company, report_name : str, year = date.today().year-1, quarter = 1):
     '''
@@ -56,8 +59,20 @@ def get_report(company : Company, report_name : str, year = date.today().year-1,
     doc_index = df[0].dropna()
     doc_name = doc_index[doc_index["Description"].str.contains(report_name)]
     doc_name = doc_name["Document"].str.split("|")[0][0]
-    final = BASE_URL + extension.replace("-","").replace("index.html","") + "/" + doc_name
+    final = BASE_URL + extension.replace("-","").replace("index.html","") + "/" + doc_name.split()[0][:-4] + "_htm.xml"
     return final
 
+def get_elemtree(url):
+    '''
+    Creates and returns an XML Element Tree object
 
-webpage = get_report(companies[1], "10-K", 2020, 1)
+    :param url: the url of an xml document
+    :return: an ElementTree object
+    '''
+    response = requests.get(url, headers=HEADER)
+    tree = etree.fromstring(response.content)
+    return tree
+
+xml = get_report(companies[1],"10-Q",2021,2)
+tree = get_elemtree(xml)
+
