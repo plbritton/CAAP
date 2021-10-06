@@ -90,7 +90,6 @@ class Report:
         :return: the values of the kpi in a list
         '''
         values = []
-        self.__xml_tree.find(kpi_name)
         for child in self.__xml_tree:
             if kpi_name in child.tag[child.tag.find("}") + 1:]:
                 values.append((child.attrib["contextRef"], child.text))
