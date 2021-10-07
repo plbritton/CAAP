@@ -25,10 +25,15 @@ class Report:
         self.report_name = report_name
         self.year = year
         self.quarter = quarter
-        self.__xml_url = self.__get_report(self.company, self.report_name, self.year, self.quarter)
+        try:
+            self.__xml_url = self.__get_report(self.company, self.report_name, self.year, self.quarter)
+        except FileNotFoundError as nf:
+            self.__update_index(self.year)
+            self.__xml_url = self.__get_report(self.company, self.report_name, self.year, self.quarter)
+
         self.__xml_tree = self.__get_elemtree(self.__xml_url)
 
-    def update_index(self, year):
+    def __update_index(self, year):
         '''
         Updates the index files, which are used to locate the correct report url.
 
