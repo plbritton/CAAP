@@ -59,6 +59,7 @@ class Report:
             filing = company_report["Items"].str.split("|").to_list()[0]
         except IndexError as ie:
             print("That report must not be available :/")
+            return None
 
         #finds SEC url for given company report
         for item in filing:
@@ -94,18 +95,35 @@ class Report:
                         (must be the camel case version of row names i.e. Gross profit becomes GrossProfit)
         :return: the values of the kpi in a list
         '''
-        values = []
+
         for child in self.__xml_tree:
             if kpi_name in child.tag[child.tag.find("}") + 1:]:
-                values.append((child.attrib["contextRef"], child.text))
-        return values
+                 return int(child.text)
+
+    def get_xml_url(self):
+        return self.__xml_url
+
+
+class KPI:
+    def __init__(self, company : Company, report_name : str, years : tuple):
+        self.company = company
+        self.report_name = report_name
+        self.years = years
+        self.dataframe = self.create_dataframe()
+
+    def create_dataframe(self):
+        df = pd.DataFrame
+        for year in range(self.years[0], self.years[1]):
+            for quarter in range(1, 5):
+                print(Report(self.company, "10-Q", year, quarter).kpi("NetIncome"))
+
+
 
 
 # Testing
 companies = [Company("Autozone Inc", "AZO", "0000866787"), Company("O REILLY AUTOMOTIVE INC", "ORLY", "0000898173")]
 
-myReport = Report(companies[1], "10-Q", 2021, 2)
-print(myReport.kpi("GrossProfit"))
+KPI(companies[1], "10-Q", (2011, 2020))
 
 
 
