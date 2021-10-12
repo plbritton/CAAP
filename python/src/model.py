@@ -106,10 +106,3 @@ companies = [Company("Autozone Inc", "AZO", "0000866787"), Company("O REILLY AUT
 
 myReport = Report(companies[1], "10-Q", 2021, 2)
 print(myReport.kpi("GrossProfit"))
-
-
-
-
-
-
-
