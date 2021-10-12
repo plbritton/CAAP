@@ -1,0 +1,62 @@
+
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
+import sys
+
+
+class Window(QWidget):
+
+    def __init__(self):
+        QWidget.__init__(self)
+        # main window setup
+        layout = QVBoxLayout()
+        self.setWindowTitle('Competitor Awareness Application (CAAP)')
+        self.setLayout(layout)
+        self.setFixedWidth(1000)
+        self.setFixedHeight(1000)
+
+        # drop down box settings
+        combobox1 = QComboBox(self)
+        combobox1.setMaximumWidth(300)
+        combobox1.setStyleSheet('QComboBox {border: 2px solid gray;}')
+        combobox1.addItem('One')
+        combobox1.addItem('Two')
+        combobox1.addItem('Three')
+        combobox1.addItem('Four')
+
+        # text in tab settings
+        label1 = QLabel("Tab for Dashboard")
+        label1.setAlignment(Qt.AlignCenter)
+        label2 = QLabel("Tab for EDP")
+        label2.setAlignment(Qt.AlignCenter)
+
+        # tab initialization
+        tabwidget = QTabWidget()
+        tab1 = QWidget()
+        tab2 = QWidget()
+        tabwidget.addTab(tab1, "Dashboard")
+        tabwidget.addTab(tab2, "EDGAR Data Processor (EDP)")
+
+        # tab1 settings
+        tab1.layout = QVBoxLayout(self)
+        tab1.layout.addWidget(label1)
+        tab1.setLayout(tab1.layout)
+
+        # tab2 settings
+        tab2.layout = QVBoxLayout(self)
+        tab2.layout.addWidget(label2)
+        tab2.layout.addWidget(combobox1)
+        tab2.setLayout(tab2.layout)
+
+        layout.addWidget(tabwidget)
+
+        self.show()
+
+
+# main class
+if __name__ == "__main__":
+
+    app = QApplication(sys.argv)
+    screen = Window()
+    screen.show()
+    sys.exit(app.exec_())
