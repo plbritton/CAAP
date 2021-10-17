@@ -11,12 +11,30 @@ class Dashboard(QWidget):
     def initUI(self):
 
         #center text
-        self.content = QLabel(self)
-        self.content.setText("Dash")
-        self.content.setAlignment(Qt.AlignCenter)
-        self.layout = QVBoxLayout(self)
-        self.layout.addWidget(self.content)
+        stocks = QTableWidget(self)
+        stocks.setColumnCount(2)
+        stocks.setRowCount(4)
+        stocks.setMaximumWidth(750)
+        stocks.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        stocks.verticalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+
+        stocks.setHorizontalHeaderLabels(["Stock Price", "Stock Change"])
+        stocks.setVerticalHeaderLabels(["Autozone", "Oreilly", "Pepboiz", "Dr. Yu's very special \nand good auto shop"])
+        graph = QLabel("Graph")
+        graph.setAlignment(Qt.AlignCenter)
+
+        self.content = []
+        self.content.append(stocks)
+        self.content.append(graph)
+
+        self.layout = QHBoxLayout(self)
+
+        for wid in self.content:
+            self.layout.addWidget(wid)
+
         self.setLayout(self.layout)
+
+
 
 class Processor(QWidget):
     def __init__(self):
@@ -52,8 +70,8 @@ class Window(QWidget):
         layout = QVBoxLayout()
         self.setWindowTitle('Competitor Awareness Application (CAAP)')
         self.setLayout(layout)
-        self.setFixedWidth(1000)
-        self.setFixedHeight(1000)
+        self.setFixedWidth(1500)
+        self.setFixedHeight(750)
 
         dash = Dashboard()
         processor = Processor()
