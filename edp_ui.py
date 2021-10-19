@@ -19,7 +19,7 @@ class Dashboard(QWidget):
 
         stocks.setHorizontalHeaderLabels(["Stock Price", "Stock Change"])
         stocks.setVerticalHeaderLabels(["Autozone", "Oreilly", "Pepboiz", "Dr. Yu's very special \nand good auto shop"])
-        graph = QLabel(("This is where the graph goes\t"*5+"\n")*75)
+        graph = QLabel("Some stuff can go here")
         graph.setMinimumWidth(1000)
         graph.setAlignment(Qt.AlignCenter)
 
