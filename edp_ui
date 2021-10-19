@@ -3,21 +3,36 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 import sys
 
+
 class Dashboard(QWidget):
     def __init__(self):
         super(Dashboard, self).__init__()
         self.initUI()
 
-
     def initUI(self):
+        stocks = QTableWidget(self)
+        stocks.setColumnCount(2)
+        stocks.setRowCount(4)
+        stocks.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        stocks.verticalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
 
-        #center text
-        self.content = QLabel(self)
-        self.content.setText("Dash")
-        self.content.setAlignment(Qt.AlignCenter)
-        self.layout = QVBoxLayout(self)
-        self.layout.addWidget(self.content)
+        stocks.setHorizontalHeaderLabels(["Stock Price", "Stock Change"])
+        stocks.setVerticalHeaderLabels(["Autozone", "Oreilly", "Pepboiz", "Dr. Yu's very special \nand good auto shop"])
+        graph = QLabel("Some stuff can go here")
+        graph.setMinimumWidth(1000)
+        graph.setAlignment(Qt.AlignCenter)
+
+        self.content = []
+        self.content.append(stocks)
+        self.content.append(graph)
+
+        self.layout = QHBoxLayout(self)
+
+        for wid in self.content:
+            self.layout.addWidget(wid)
+
         self.setLayout(self.layout)
+
 
 class Processor(QWidget):
     def __init__(self):
@@ -26,12 +41,16 @@ class Processor(QWidget):
 
     def initUI(self):
         # adds the widgets to the layout then implement it to page
-
+        self.main_layout = QVBoxLayout()
+        self.horiz_layout = QHBoxLayout()
+        self.horiz_layout2 = QHBoxLayout()
+        self.horiz_layout3 = QHBoxLayout()
         # visualization
         self.visual = QLabel('Select Preferred Chart Visualization:', self)
         self.visual.setFont(QFont('Arial', 10))
         self.visual.setStyleSheet("font-weight: bold; color: #3C404D")
-        self.visual.move(10,50)
+        self.visual.move(10, 50)
+        self.main_layout.addWidget(self.visual)
 
         # visualization drop down box settings
         self.chartSelector = QComboBox(self)
@@ -44,85 +63,104 @@ class Processor(QWidget):
         self.chartSelector.addItem('Table')
         self.chartSelector.addItem('Histogram')
         self.chartSelector.addItem('Store Count')
-        self.chartSelector.adjustSize()
+        self.main_layout.addWidget(self.chartSelector)
+        self.chartSelector.setFixedWidth(200)
+
 
         # fill in attributes text settings
         self.attrib = QLabel('Fill in your attributes: ', self)
         self.attrib.setFont(QFont('Arial', 10))
         self.attrib.setStyleSheet("font-weight: bold; color: #3C404D")
-        self.attrib.move(0,1300)
+        self.attrib.move(0, 1300)
+        self.main_layout.addWidget(self.attrib)
 
         # attribute 1 row 1 settings
-        self.attrib1 = QLabel('Company 1: ', self)
-        self.attrib1.setFont(QFont('Arial', 10))
-        self.attrib1.move(230,1400)
+        self.attrib11 = QLabel('Company 1: ', self)
+        self.attrib11.setFont(QFont('Arial', 10))
+        self.attrib11.move(230, 1400)
+        self.horiz_layout.addWidget(self.attrib11)
 
         # attribute 1 row 1 drop down box settings
-        self.att1 = QComboBox(self)
-        self.att1.setFont(QFont('Arial', 9))
-        self.att1.setGeometry(450, 1400, 0, 0)
-        self.att1.setStyleSheet('QComboBox {border: 2px solid gray;}')
-        self.att1.addItem('AutoZone')
-        self.att1.addItem("O'Reilly")
-        self.att1.addItem('AAP')
-        self.att1.adjustSize()
-        
+        self.att11 = QComboBox(self)
+        self.att11.setFont(QFont('Arial', 9))
+        self.att11.setGeometry(450, 1400, 0, 0)
+        self.att11.setStyleSheet('QComboBox {border: 2px solid gray;}')
+        self.att11.addItem('AutoZone')
+        self.att11.addItem("O'Reilly")
+        self.att11.addItem('AAP')
+        self.att11.adjustSize()
+        self.horiz_layout.addWidget(self.att11)
+        self.att11.setFixedWidth(200)
+
         # attribute 2 row 1 settings
-        self.plus = QLabel(' + ', self)
-        self.plus.setStyleSheet("font-weight: bold; color: black")
-        self.plus.move(770, 1400)
+        self.plus21 = QLabel(' + ', self)
+        self.plus21.setStyleSheet("font-weight: bold; color: black")
+        self.plus21.move(770, 1400)
+        self.horiz_layout.addWidget(self.plus21)
         self.attrib21 = QLabel('Column 1: ', self)
         self.attrib21.setFont(QFont('Arial', 10))
         self.attrib21.move(1000, 1400)
+        self.horiz_layout.addWidget(self.attrib21)
 
         # attribute 2 row 1 drop down box settings
-        self.att22 = QComboBox(self)
-        self.att22.setFont(QFont('Arial', 9))
-        self.att22.setGeometry(1200, 1400, 0, 0)
-        self.att22.setStyleSheet('QComboBox {border: 2px solid gray;}')
-        self.att22.addItem('Net Profit')
-        self.att22.addItem("Time")
-        self.att22.adjustSize()
+        self.att21 = QComboBox(self)
+        self.att21.setFont(QFont('Arial', 9))
+        self.att21.setGeometry(1200, 1400, 0, 0)
+        self.att21.setStyleSheet('QComboBox {border: 2px solid gray;}')
+        self.att21.addItem('Net Profit')
+        self.att21.addItem("Time")
+        self.att21.adjustSize()
+        self.horiz_layout.addWidget(self.att21)
+        self.att21.setFixedWidth(200)
 
         # attribute 3 row 1 settings
-        self.plus = QLabel(' + ', self)
-        self.plus.setStyleSheet("font-weight: bold; color: black")
-        self.plus.move(1500, 1400)
-        self.attrib21 = QLabel('Column 2: ', self)
-        self.attrib21.setFont(QFont('Arial', 10))
-        self.attrib21.move(1700, 1400)
+        self.plus31 = QLabel(' + ', self)
+        self.plus31.setStyleSheet("font-weight: bold; color: black")
+        self.horiz_layout.addWidget(self.plus31)
+        self.plus31.move(1500, 1400)
+        self.attrib31 = QLabel('Column 2: ', self)
+        self.attrib31.setFont(QFont('Arial', 10))
+        self.attrib31.move(1700, 1400)
+        self.horiz_layout.addWidget(self.attrib31)
 
         # attribute 3 row 1 drop down box settings
-        self.att22 = QComboBox(self)
-        self.att22.setFont(QFont('Arial', 9))
-        self.att22.setGeometry(1900, 1400, 0, 0)
-        self.att22.setStyleSheet('QComboBox {border: 2px solid gray;}')
-        self.att22.addItem('Net Profit')
-        self.att22.addItem("Time")
-        self.att22.adjustSize()
+        self.att31 = QComboBox(self)
+        self.att31.setFont(QFont('Arial', 9))
+        self.att31.setGeometry(1900, 1400, 0, 0)
+        self.att31.setStyleSheet('QComboBox {border: 2px solid gray;}')
+        self.att31.addItem('Net Profit')
+        self.att31.addItem("Time")
+        self.att31.adjustSize()
+        self.horiz_layout.addWidget(self.att31)
+        self.att31.setFixedWidth(200)
 
         # attribute 1 row 2 settings
-        self.attrib2 = QLabel('Company 2: ', self)
-        self.attrib2.setFont(QFont('Arial', 10))
-        self.attrib2.move(230,1500)
+        self.attrib12 = QLabel('Company 2: ', self)
+        self.attrib12.setFont(QFont('Arial', 10))
+        self.attrib12.move(230, 1500)
+        self.horiz_layout2.addWidget(self.attrib12)
 
         # attribute 1 row 2 drop down box settings
-        self.att2 = QComboBox(self)
-        self.att2.setFont(QFont('Arial', 9))
-        self.att2.setGeometry(450, 1500, 0, 0)
-        self.att2.setStyleSheet('QComboBox {border: 2px solid gray;}')
-        self.att2.addItem('AutoZone')
-        self.att2.addItem("O'Reilly")
-        self.att2.addItem('AAP')
-        self.att2.adjustSize()
+        self.att12 = QComboBox(self)
+        self.att12.setFont(QFont('Arial', 9))
+        self.att12.setGeometry(450, 1500, 0, 0)
+        self.att12.setStyleSheet('QComboBox {border: 2px solid gray;}')
+        self.att12.addItem('AutoZone')
+        self.att12.addItem("O'Reilly")
+        self.att12.addItem('AAP')
+        self.att12.adjustSize()
+        self.horiz_layout2.addWidget(self.att12)
 
         # attribute 2 row 2 settings
-        self.plus = QLabel(' + ', self)
-        self.plus.setStyleSheet("font-weight: bold; color: black")
-        self.plus.move(770, 1500)
-        self.attrib21 = QLabel('Column 1: ', self)
-        self.attrib21.setFont(QFont('Arial', 10))
-        self.attrib21.move(1000, 1500)
+        self.plus22 = QLabel(' + ', self)
+        self.plus22.setStyleSheet("font-weight: bold; color: black")
+        self.plus22.move(770, 1500)
+        self.horiz_layout2.addWidget(self.plus22)
+        self.attrib22 = QLabel('Column 1: ', self)
+        self.attrib22.setFont(QFont('Arial', 10))
+        self.attrib22.move(1000, 1500)
+        self.horiz_layout2.addWidget(self.attrib22)
+
 
         # attribute 2 row 2 drop down box settings
         self.att22 = QComboBox(self)
@@ -132,36 +170,46 @@ class Processor(QWidget):
         self.att22.addItem('Net Profit')
         self.att22.addItem("Time")
         self.att22.adjustSize()
+        self.horiz_layout2.addWidget(self.att22)
 
         # attribute 3 row 2 settings
-        self.plus = QLabel(' + ', self)
-        self.plus.setStyleSheet("font-weight: bold; color: black")
-        self.plus.move(1500, 1500)
-        self.attrib21 = QLabel('Column 2: ', self)
-        self.attrib21.setFont(QFont('Arial', 10))
-        self.attrib21.move(1700, 1500)
+        self.plus32 = QLabel(' + ', self)
+        self.plus32.setStyleSheet("font-weight: bold; color: black")
+        self.plus32.move(1500, 1500)
+        self.horiz_layout2.addWidget(self.plus32)
+        self.attrib32 = QLabel('Column 2: ', self)
+        self.attrib32.setFont(QFont('Arial', 10))
+        self.attrib32.move(1700, 1500)
+        self.horiz_layout2.addWidget(self.attrib32)
 
         # attribute 3 row 2 drop down box settings
-        self.att22 = QComboBox(self)
-        self.att22.setFont(QFont('Arial', 9))
-        self.att22.setGeometry(1900, 1500, 0, 0)
-        self.att22.setStyleSheet('QComboBox {border: 2px solid gray;}')
-        self.att22.addItem('Net Profit')
-        self.att22.addItem("Time")
-        self.att22.adjustSize()
+        self.att32 = QComboBox(self)
+        self.att32.setFont(QFont('Arial', 9))
+        self.att32.setGeometry(1900, 1500, 0, 0)
+        self.att32.setStyleSheet('QComboBox {border: 2px solid gray;}')
+        self.att32.addItem('Net Profit')
+        self.att32.addItem("Time")
+        self.att32.adjustSize()
+        self.horiz_layout2.addWidget(self.att32)
 
         # button to add a row of attributes
         self.button1 = QPushButton(self)
         self.button1.setText("Add Another Row + ")
         self.button1.move(20, 1850)
         self.button1.clicked.connect(self.button1_clicked)
+        self.horiz_layout3.addWidget(self.button1)
 
         # button to add a row of attributes
         self.button2 = QPushButton(self)
         self.button2.setText("Submit")
         self.button2.move(3550, 1850)
         self.button2.clicked.connect(self.button2_clicked)
+        self.horiz_layout3.addWidget(self.button2)
 
+        self.main_layout.addLayout(self.horiz_layout)
+        self.main_layout.addLayout(self.horiz_layout2)
+        self.main_layout.addLayout(self.horiz_layout3)
+        self.setLayout(self.main_layout)
     # method for button click function
     def button1_clicked(self):
         QMessageBox.about(self, "Nice!", "You added a new row of attributes!")
@@ -169,6 +217,7 @@ class Processor(QWidget):
     #  method for button click function
     def button2_clicked(self):
         QMessageBox.about(self, "Nice!", "You submitted your chart attributes!")
+
 
 class Window(QWidget):
 
@@ -179,7 +228,7 @@ class Window(QWidget):
         self.setWindowTitle('Competitor Awareness Application (CAAP)')
         self.setLayout(layout)
         # self.setFixedWidth(2000)
-       # self.setFixedHeight(1500)
+        # self.setFixedHeight(1500)
 
         dash = Dashboard()
         processor = Processor()
@@ -199,12 +248,11 @@ class Window(QWidget):
 
         self.setStyleSheet(stylesheet)
 
-        self.showMaximized()
+        self.show()
 
 
 # main class
 if __name__ == "__main__":
-
     app = QApplication(sys.argv)
     screen = Window()
     screen.show()
