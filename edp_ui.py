@@ -6,6 +6,7 @@ import sys
 class selectionBox(QWidget):
     def __init__(self):
         super(selectionBox, self).__init__()
+        self.companies = ["Autozone", "Oreilly", "Pepboys"]
         self.rows = 0
         self.columns = 0
         self.initUI()
@@ -14,6 +15,9 @@ class selectionBox(QWidget):
         self.main_layout = QVBoxLayout()
         self.company_attribute_separator = QHBoxLayout()
         self.company_layout = QVBoxLayout()
+        self.attribute_layout = QHBoxLayout()
+        self.attribute_layout.addWidget(QLabel("Attributes: "))
+        self.attribute_widgets = []
         self.selectionLabel = QLabel('Fill in your attributes: ', self)
         self.selectionLabel.setFont(QFont('Arial', 11))
         self.selectionLabel.setStyleSheet("font-weight: bold; color: #3C404D")
@@ -21,10 +25,8 @@ class selectionBox(QWidget):
         self.selectionLabel.setAlignment(Qt.AlignHCenter)
         self.main_layout.addWidget(self.selectionLabel)
         self.make_row()
-        self.make_row()
         self.main_layout.addLayout(self.company_attribute_separator)
         self.company_attribute_separator.addLayout(self.company_layout)
-        self.make_attribute_selector()
 
         self.addRow = QPushButton(self)
         self.addRow.setText("Add Row")
@@ -32,15 +34,9 @@ class selectionBox(QWidget):
         self.main_layout.addWidget(self.addRow)
         self.addRow.setFixedWidth(200)
 
-        self.submit_button = QPushButton(self)
-        self.submit_button.setText("Submit")
-        self.submit_button.clicked.connect(self.submit)
-        self.main_layout.addWidget(self.submit_button)
-        self.submit_button.setFixedWidth(200)
-
         self.setLayout(self.main_layout)
 
-    def make_row(self, companies = ["Autozone", "Oreilly", "Pepboys"]):
+    def make_row(self):
         self.rows += 1
         row_layout = QHBoxLayout()
         row_layout.setAlignment(Qt.AlignLeft)
@@ -54,7 +50,7 @@ class selectionBox(QWidget):
         self.company_combo = QComboBox(self)
         self.company_combo.setFont(QFont('Arial', 10))
         self.company_combo.setStyleSheet('QComboBox {border: 2px solid gray;}')
-        for i in companies:
+        for i in self.companies:
             self.company_combo.addItem(i)
         self.company_combo.setFixedWidth(200)
         row_layout.addWidget(self.company_combo)
@@ -62,9 +58,10 @@ class selectionBox(QWidget):
         self.company_layout.addLayout(row_layout)
 
     def make_attribute_selector(self, attributes = ["Net Profit", "Time"], attribute_count = 2):
-        self.attribute_layout = QHBoxLayout()
+        while self.attribute_widgets:
+            self.attribute_layout.removeWidget(self.attribute_widgets.pop())
+        self.setLayout(self.attribute_layout)
         self.attribute_layout.setAlignment(Qt.AlignRight)
-        self.attribute_layout.addWidget(QLabel("Attributes: "))
         for _ in range(attribute_count):
             attribute_combo = QComboBox(self)
             attribute_combo.setFont(QFont('Arial', 10))
@@ -73,12 +70,9 @@ class selectionBox(QWidget):
                 attribute_combo.addItem(i)
 
             self.attribute_layout.addWidget(attribute_combo)
+            self.attribute_widgets.append(attribute_combo)
             attribute_combo.setFixedWidth(200)
         self.company_attribute_separator.addLayout(self.attribute_layout)
-
-    def submit(self):
-        QMessageBox.about(self, "Nice!", "You submitted your chart attributes!")
-
 
 class Dashboard(QWidget):
     def __init__(self):
@@ -134,19 +128,29 @@ class Processor(QWidget):
         self.chartSelector.addItem('Line Graph')
         self.chartSelector.addItem('Pie Chart')
         self.chartSelector.addItem('Table')
-        self.chartSelector.addItem('Histogram')
         self.chartSelector.addItem('Store Count')
         self.chartSelector.setGeometry(10, 70, 200, 40)
 
-        self.setLayout(self.main_layout)
-        attribute_selection = selectionBox()
-        self.main_layout.addWidget(attribute_selection)
+        self.chartTypeAttributeCount = {"Bar Graph" : 0, "Line Graph" : 2, "Pie Chart" : 1, "Table" : 0}
 
+        self.submit_button = QPushButton(self)
+        self.submit_button.setText("Submit")
+        self.submit_button.clicked.connect(self.submit)
+        self.main_layout.addWidget(self.submit_button)
+        self.submit_button.setFixedWidth(200)
+
+        self.setLayout(self.main_layout)
+        self.attribute_selection = selectionBox()
+        self.chartSelector.activated[str].connect(self.modify_attributes)
+        self.main_layout.addWidget(self.attribute_selection)
+
+    def modify_attributes(self):
+        self.attribute_selection.make_attribute_selector(
+            attribute_count=self.chartTypeAttributeCount[self.chartSelector.currentText()])
 
     #  method for button click function
-    def button2_clicked(self):
+    def submit(self):
         QMessageBox.about(self, "Nice!", "You submitted your chart attributes!")
-
 
 class Window(QWidget):
 
