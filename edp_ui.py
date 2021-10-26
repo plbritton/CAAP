@@ -3,6 +3,82 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 import sys
 
+class selectionBox(QWidget):
+    def __init__(self):
+        super(selectionBox, self).__init__()
+        self.rows = 0
+        self.columns = 0
+        self.initUI()
+
+    def initUI(self):
+        self.main_layout = QVBoxLayout()
+        self.company_attribute_separator = QHBoxLayout()
+        self.company_layout = QVBoxLayout()
+        self.selectionLabel = QLabel('Fill in your attributes: ', self)
+        self.selectionLabel.setFont(QFont('Arial', 11))
+        self.selectionLabel.setStyleSheet("font-weight: bold; color: #3C404D")
+        self.selectionLabel.setFixedHeight(100)
+        self.selectionLabel.setAlignment(Qt.AlignHCenter)
+        self.main_layout.addWidget(self.selectionLabel)
+        self.make_row()
+        self.make_row()
+        self.main_layout.addLayout(self.company_attribute_separator)
+        self.company_attribute_separator.addLayout(self.company_layout)
+        self.make_attribute_selector()
+
+        self.addRow = QPushButton(self)
+        self.addRow.setText("Add Row")
+        self.addRow.clicked.connect(self.make_row)
+        self.main_layout.addWidget(self.addRow)
+        self.addRow.setFixedWidth(200)
+
+        self.submit_button = QPushButton(self)
+        self.submit_button.setText("Submit")
+        self.submit_button.clicked.connect(self.submit)
+        self.main_layout.addWidget(self.submit_button)
+        self.submit_button.setFixedWidth(200)
+
+        self.setLayout(self.main_layout)
+
+    def make_row(self, companies = ["Autozone", "Oreilly", "Pepboys"]):
+        self.rows += 1
+        row_layout = QHBoxLayout()
+        row_layout.setAlignment(Qt.AlignLeft)
+
+        #company label
+        self.company_label = QLabel(f'Company {self.rows}: ', self)
+        self.company_label.setFont(QFont('Arial', 11))
+        row_layout.addWidget(self.company_label)
+
+        #company combo box
+        self.company_combo = QComboBox(self)
+        self.company_combo.setFont(QFont('Arial', 10))
+        self.company_combo.setStyleSheet('QComboBox {border: 2px solid gray;}')
+        for i in companies:
+            self.company_combo.addItem(i)
+        self.company_combo.setFixedWidth(200)
+        row_layout.addWidget(self.company_combo)
+
+        self.company_layout.addLayout(row_layout)
+
+    def make_attribute_selector(self, attributes = ["Net Profit", "Time"], attribute_count = 2):
+        self.attribute_layout = QHBoxLayout()
+        self.attribute_layout.setAlignment(Qt.AlignRight)
+        self.attribute_layout.addWidget(QLabel("Attributes: "))
+        for _ in range(attribute_count):
+            attribute_combo = QComboBox(self)
+            attribute_combo.setFont(QFont('Arial', 10))
+            attribute_combo.setStyleSheet('QComboBox {border: 2px solid gray;}')
+            for i in attributes:
+                attribute_combo.addItem(i)
+
+            self.attribute_layout.addWidget(attribute_combo)
+            attribute_combo.setFixedWidth(200)
+        self.company_attribute_separator.addLayout(self.attribute_layout)
+
+    def submit(self):
+        QMessageBox.about(self, "Nice!", "You submitted your chart attributes!")
+
 
 class Dashboard(QWidget):
     def __init__(self):
@@ -28,8 +104,8 @@ class Dashboard(QWidget):
 
         self.layout = QHBoxLayout(self)
 
-        for wid in self.content:
-            self.layout.addWidget(wid)
+        for widget in self.content:
+            self.layout.addWidget(widget)
 
         self.setLayout(self.layout)
 
@@ -42,9 +118,6 @@ class Processor(QWidget):
     def initUI(self):
         # creates the layouts to place widgets in and format
         self.main_layout = QVBoxLayout()
-        self.horiz_layout = QHBoxLayout()
-        self.horiz_layout2 = QHBoxLayout()
-        self.horiz_layout3 = QHBoxLayout()
 
         # visualization text settings
         self.visual = QLabel('Select Preferred Chart Visualization:', self)
@@ -65,141 +138,10 @@ class Processor(QWidget):
         self.chartSelector.addItem('Store Count')
         self.chartSelector.setGeometry(10, 70, 200, 40)
 
-        # 'fill in attributes' text settings
-        self.attrib = QLabel('Fill in your attributes: ', self)
-        self.attrib.setFont(QFont('Arial', 11))
-        self.attrib.setStyleSheet("font-weight: bold; color: #3C404D")
-        self.attrib.setFixedHeight(100)
-        self.attrib.setAlignment(Qt.AlignHCenter)
-        self.main_layout.addWidget(self.attrib)
-
-        # attribute 1, row 1 text settings
-        self.attrib11 = QLabel('Company 1: ', self)
-        self.attrib11.setFont(QFont('Arial', 11))
-        self.horiz_layout.addWidget(self.attrib11)
-
-        # attribute 1, row 1 drop down box settings
-        self.att11 = QComboBox(self)
-        self.att11.setFont(QFont('Arial', 10))
-        self.att11.setStyleSheet('QComboBox {border: 2px solid gray;}')
-        self.att11.addItem('AutoZone')
-        self.att11.addItem("O'Reilly")
-        self.att11.addItem('AAP')
-        self.horiz_layout.addWidget(self.att11)
-        self.att11.setFixedWidth(200)
-
-        # attribute 2, row 1 text settings
-        self.plus21 = QLabel(' + ', self)
-        self.plus21.setStyleSheet("font-weight: bold; color: black")
-        self.horiz_layout.addWidget(self.plus21)
-        self.attrib21 = QLabel('Column 1: ', self)
-        self.attrib21.setFont(QFont('Arial', 11))
-        self.horiz_layout.addWidget(self.attrib21)
-
-        # attribute 2, row 1 drop down box settings
-        self.att21 = QComboBox(self)
-        self.att21.setFont(QFont('Arial', 10))
-        self.att21.setStyleSheet('QComboBox {border: 2px solid gray;}')
-        self.att21.addItem('Net Profit')
-        self.att21.addItem("Time")
-        self.horiz_layout.addWidget(self.att21)
-        self.att21.setFixedWidth(200)
-
-        # attribute 3, row 1 text settings
-        self.plus31 = QLabel(' + ', self)
-        self.plus31.setStyleSheet("font-weight: bold; color: black")
-        self.horiz_layout.addWidget(self.plus31)
-        self.attrib31 = QLabel('Column 2: ', self)
-        self.attrib31.setFont(QFont('Arial', 11))
-        self.horiz_layout.addWidget(self.attrib31)
-
-        # attribute 3, row 1 drop down box settings
-        self.att31 = QComboBox(self)
-        self.att31.setFont(QFont('Arial', 10))
-        self.att31.setStyleSheet('QComboBox {border: 2px solid gray;}')
-        self.att31.addItem('Net Profit')
-        self.att31.addItem("Time")
-        self.horiz_layout.addWidget(self.att31)
-        self.att31.setFixedWidth(200)
-
-        # attribute 1, row 2 text settings
-        self.attrib12 = QLabel('Company 2: ', self)
-        self.attrib12.setFont(QFont('Arial', 11))
-        self.horiz_layout2.addWidget(self.attrib12)
-
-        # attribute 1, row 2 drop down box settings
-        self.att12 = QComboBox(self)
-        self.att12.setFont(QFont('Arial', 10))
-        self.att12.setStyleSheet('QComboBox {border: 2px solid gray;}')
-        self.att12.addItem('AutoZone')
-        self.att12.addItem("O'Reilly")
-        self.att12.addItem('AAP')
-        self.horiz_layout2.addWidget(self.att12)
-        self.att12.setFixedWidth(200)
-
-        # attribute 2, row 2 text settings
-        self.plus22 = QLabel(' + ', self)
-        self.plus22.setStyleSheet("font-weight: bold; color: black")
-        self.horiz_layout2.addWidget(self.plus22)
-        self.attrib22 = QLabel('Column 1: ', self)
-        self.attrib22.setFont(QFont('Arial', 11))
-        self.horiz_layout2.addWidget(self.attrib22)
-
-
-        # attribute 2, row 2 drop down box settings
-        self.att22 = QComboBox(self)
-        self.att22.setFont(QFont('Arial', 10))
-        self.att22.setStyleSheet('QComboBox {border: 2px solid gray;}')
-        self.att22.addItem('Net Profit')
-        self.att22.addItem("Time")
-        self.horiz_layout2.addWidget(self.att22)
-        self.att22.setFixedWidth(200)
-
-        # attribute 3, row 2 text settings
-        self.plus32 = QLabel(' + ', self)
-        self.plus32.setStyleSheet("font-weight: bold; color: black")
-        self.horiz_layout2.addWidget(self.plus32)
-        self.attrib32 = QLabel('Column 2: ', self)
-        self.attrib32.setFont(QFont('Arial', 11))
-        self.horiz_layout2.addWidget(self.attrib32)
-
-        # attribute 3, row 2 drop down box settings
-        self.att32 = QComboBox(self)
-        self.att32.setFont(QFont('Arial', 10))
-        self.att32.setStyleSheet('QComboBox {border: 2px solid gray;}')
-        self.att32.addItem('Net Profit')
-        self.att32.addItem("Time")
-        self.horiz_layout2.addWidget(self.att32)
-        self.att32.setFixedWidth(200)
-
-        # button to add a row of attributes
-        self.button1 = QPushButton(self)
-        self.button1.setText("Add Another Row + ")
-        self.button1.clicked.connect(self.button1_clicked)
-        self.horiz_layout3.addWidget(self.button1)
-        self.button1.setFixedWidth(300)
-
-        # button to add a row of attributes
-        self.button2 = QPushButton(self)
-        self.button2.setText("Submit")
-        self.button2.clicked.connect(self.button2_clicked)
-        self.horiz_layout3.addWidget(self.button2)
-        self.button2.setFixedWidth(200)
-
-        # sets alignment for the horizontal layouts
-        self.horiz_layout.setAlignment(Qt.AlignHCenter)
-        self.horiz_layout2.setAlignment(Qt.AlignHCenter)
-        self.horiz_layout3.setAlignment(Qt.AlignHCenter)
-        # adds the horizontal layouts into the main vertical layout
-        self.main_layout.addLayout(self.horiz_layout)
-        self.main_layout.addLayout(self.horiz_layout2)
-        self.main_layout.addLayout(self.horiz_layout3)
-        # sets the layout
         self.setLayout(self.main_layout)
+        attribute_selection = selectionBox()
+        self.main_layout.addWidget(attribute_selection)
 
-    # method for button click function
-    def button1_clicked(self):
-        QMessageBox.about(self, "Nice!", "You added a new row of attributes!")
 
     #  method for button click function
     def button2_clicked(self):
