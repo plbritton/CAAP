@@ -27,13 +27,11 @@ class selectionBox(QWidget):
         self.make_row()
         self.main_layout.addLayout(self.company_attribute_separator)
         self.company_attribute_separator.addLayout(self.company_layout)
-
         self.addRow = QPushButton(self)
         self.addRow.setText("Add Row")
         self.addRow.clicked.connect(self.make_row)
         self.main_layout.addWidget(self.addRow)
         self.addRow.setFixedWidth(200)
-
         self.setLayout(self.main_layout)
 
     def make_row(self):
@@ -141,6 +139,7 @@ class Processor(QWidget):
 
         self.setLayout(self.main_layout)
         self.attribute_selection = selectionBox()
+        self.modify_attributes()
         self.chartSelector.activated[str].connect(self.modify_attributes)
         self.main_layout.addWidget(self.attribute_selection)
 
