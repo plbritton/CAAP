@@ -31,3 +31,28 @@ plt.show()
 fg = sns.FacetGrid(dat=data,col='type')
 fg.map(plt.hist,'') #put parameter label within ''
 
+#to make a lineplot
+line = sns.lineplot(dat=data)
+sns.lineplot(dat= data, x='', y='')
+
+
+
+# https://matplotlib.org/stable/tutorials/introductory/pyplot.html
+#linear and log stuff if there's both data on a lower end and higher end
+
+np.random.seed(167249)
+
+#put data info here
+
+plt.figure()
+
+# linear
+plt.subplot(200)
+plt.plot(i, j)
+plt.yscale('linear') #if log is desired then change 'linear' to 'log'
+plt.title('linear graph')
+plt.grid(True)
+
+
+
+
