@@ -1,6 +1,17 @@
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
+from PyQt5 import QtGui
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+import sys
+from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolbar
+from matplotlib.figure import Figure
+import matplotlib.pyplot as plt
+from model import Report
+
+import random
+
 import sys
 
 class selectionBox(QWidget):
@@ -55,7 +66,7 @@ class selectionBox(QWidget):
 
         self.company_layout.addLayout(row_layout)
 
-    def make_attribute_selector(self, attributes = ["Net Profit", "Time"], attribute_count = 2):
+    def make_attribute_selector(self, attributes = ["GrossProfit", "NetProfit", "Time"], attribute_count = 3):
         while self.attribute_widgets:
             self.attribute_layout.removeWidget(self.attribute_widgets.pop())
         self.setLayout(self.attribute_layout)
@@ -111,13 +122,6 @@ class Processor(QWidget):
         # creates the layouts to place widgets in and format
         self.main_layout = QVBoxLayout()
 
-        # visualization text settings
-        self.visual = QLabel('Select Preferred Chart Visualization:', self)
-        self.visual.setFont(QFont('Arial', 12))
-        self.visual.setStyleSheet("font-weight: bold; color: #3C404D")
-        self.visual.setAlignment(Qt.AlignTop)
-        self.main_layout.addWidget(self.visual)
-
         # visualization drop down box settings
         self.chartSelector = QComboBox(self)
         self.chartSelector.setFont(QFont('Arial', 11))
@@ -127,15 +131,19 @@ class Processor(QWidget):
         self.chartSelector.addItem('Pie Chart')
         self.chartSelector.addItem('Table')
         self.chartSelector.addItem('Store Count')
-        self.chartSelector.setGeometry(10, 70, 200, 40)
+        self.main_layout.addWidget(self.chartSelector)
 
-        self.chartTypeAttributeCount = {"Bar Graph" : 0, "Line Graph" : 2, "Pie Chart" : 1, "Table" : 0}
+        # this creates the plot widget
+        self.figure = plt.figure()
+        self.canvas = FigureCanvas(self.figure)
+        self.toolbar = NavigationToolbar(self.canvas, self)
+        self.button = QPushButton('Plot')
+        self.button.clicked.connect(self.plot)
+        self.main_layout.addWidget(self.toolbar)
+        self.main_layout.addWidget(self.canvas)
+        self.main_layout.addWidget(self.button)
 
-        self.submit_button = QPushButton(self)
-        self.submit_button.setText("Submit")
-        self.submit_button.clicked.connect(self.submit)
-        self.main_layout.addWidget(self.submit_button)
-        self.submit_button.setFixedWidth(200)
+        self.chartTypeAttributeCount = {"Bar Graph" : 1, "Line Graph" : 2, "Pie Chart" : 1, "Table" : 3}
 
         self.setLayout(self.main_layout)
         self.attribute_selection = selectionBox()
@@ -143,13 +151,29 @@ class Processor(QWidget):
         self.chartSelector.activated[str].connect(self.modify_attributes)
         self.main_layout.addWidget(self.attribute_selection)
 
+    def plot(self):
+        # create reports
+        azo = Report("AZO", "GrossProfit")
+        orly = Report("ORLY", "GrossProfit")
+
+        # clearing old figure
+        self.figure.clear()
+
+        # create an axis
+        ax = self.figure.add_subplot(111, ylabel="USD", title=azo.kpi)
+
+        # plot data
+        azo.data.plot(ax=ax)
+        orly.data.plot(ax=ax)
+        ax.legend([azo.company.name, orly.company.name])
+        # refresh canvas
+        self.canvas.draw()
+
     def modify_attributes(self):
         self.attribute_selection.make_attribute_selector(
             attribute_count=self.chartTypeAttributeCount[self.chartSelector.currentText()])
 
-    #  method for button click function
-    def submit(self):
-        QMessageBox.about(self, "Nice!", "You submitted your chart attributes!")
+
 
 class Window(QWidget):
 
