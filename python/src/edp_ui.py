@@ -14,6 +14,7 @@ import random
 
 import sys
 
+#contains company selectors and attribute selectors on the data processing page
 class selectionBox(QWidget):
     def __init__(self):
         super(selectionBox, self).__init__()
@@ -57,8 +58,8 @@ class selectionBox(QWidget):
         company_combo = QComboBox(self)
         company_combo.setFont(QFont('Arial', 10))
         company_combo.setStyleSheet('QComboBox {border: 2px solid gray;}')
-        for i in self.companies:
-            company_combo.addItem(i)
+        for company_name in self.companies:
+            company_combo.addItem(company_name)
         company_combo.setFixedWidth(200)
         row_layout.addWidget(company_combo)
         self.company_widgets.append(company_combo)
@@ -73,8 +74,8 @@ class selectionBox(QWidget):
             attribute_combo = QComboBox(self)
             attribute_combo.setFont(QFont('Arial', 10))
             attribute_combo.setStyleSheet('QComboBox {border: 2px solid gray;}')
-            for i in attributes:
-                attribute_combo.addItem(i)
+            for selected_attribute in attributes:
+                attribute_combo.addItem(selected_attribute)
 
             self.attribute_layout.addWidget(attribute_combo)
             self.attribute_widgets.append(attribute_combo)
@@ -153,13 +154,13 @@ class Processor(QWidget):
         # create reports
         reports = []
         #get all companies shown on EDP page
-        for i in self.attribute_selection.company_widgets:
-            print(i.currentText())
-            reports.append(Report(i.currentText(), self.attribute_selection.attribute_widgets[0].currentText()))
+        for company_selected in self.attribute_selection.company_widgets:
+            print(company_selected.currentText())
+            reports.append(Report(company_selected.currentText(), self.attribute_selection.attribute_widgets[0].currentText()))
 
         #get all attributes selected on EDP page
-        for i in self.attribute_selection.attribute_widgets:
-            print(i.currentText())
+        for attribute_selected in self.attribute_selection.attribute_widgets:
+            print(attribute_selected.currentText())
 
         # clearing old figure
         self.figure.clear()
@@ -168,9 +169,10 @@ class Processor(QWidget):
         ax = self.figure.add_subplot(111, ylabel="USD", title=self.attribute_selection.attribute_widgets[0].currentText())
 
         # plot data
-        for i in reports:
-            i.data.plot(ax=ax)
-        ax.legend([i.company.name for i in reports])
+        for company_data in reports:
+            company_data.data.plot(ax=ax)
+        ax.legend([company_data.company.name for company_data in reports])
+
         # refresh canvas
         self.canvas.draw()
 
