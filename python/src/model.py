@@ -53,10 +53,3 @@ class Report:
         cik = COMPANIES[COMPANIES["Ticker"] == ticker].iloc[0].at["CIK"]
         return Company(name, ticker, cik)
 
-
-
-
-
-
-
-
