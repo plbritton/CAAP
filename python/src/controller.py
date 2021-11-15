@@ -5,3 +5,8 @@ if __name__ == "__main__":
     screen = Window()
     screen.show()
     sys.exit(app.exec_())
+    '''
+    azo = Report("AZO", "GrossProfit")
+    store = Report("AZO", "NumberOfStores")
+    print(azo.data)
+    '''

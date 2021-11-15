@@ -80,6 +80,11 @@ class selectionBox(QWidget):
             self.attribute_layout.addWidget(attribute_combo)
             self.attribute_widgets.append(attribute_combo)
             attribute_combo.setFixedWidth(200)
+        perStoreCount = QCheckBox("Per Store?")
+
+        self.attribute_layout.addWidget(perStoreCount)
+        self.attribute_widgets.append(perStoreCount)
+
         self.company_attribute_separator.addLayout(self.attribute_layout)
 
 class Dashboard(QWidget):
@@ -142,7 +147,7 @@ class Processor(QWidget):
         self.main_layout.addWidget(self.canvas)
         self.main_layout.addWidget(self.button)
 
-        self.chartTypeAttributeCount = {"Bar Graph" : 1, "Line Graph" : 2, "Pie Chart" : 1, "Table" : 3, "Store Count":0}
+        self.chartTypeAttributeCount = {"Bar Graph" : 1, "Line Graph" : 1, "Pie Chart" : 1, "Table" : 1, "Store Count":0}
 
         self.setLayout(self.main_layout)
         self.attribute_selection = selectionBox()
@@ -165,8 +170,8 @@ class Processor(QWidget):
         # clearing old figure
         self.figure.clear()
 
-        # create an axis
-        ax = self.figure.add_subplot(111, ylabel="USD", title=self.attribute_selection.attribute_widgets[0].currentText())
+        # create an axis using KPI listed in attribute combo boxes
+        ax = self.figure.add_subplot(111, ylabel=self.attribute_selection.attribute_widgets[0].currentText(), title=self.attribute_selection.attribute_widgets[0].currentText() + " per year")
 
         # plot data
         for company_data in reports:
@@ -179,7 +184,6 @@ class Processor(QWidget):
     def modify_attributes(self):
         self.attribute_selection.make_attribute_selector(
             attribute_count=self.chartTypeAttributeCount[self.chartSelector.currentText()])
-
 
 
 class Window(QWidget):

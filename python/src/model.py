@@ -53,3 +53,12 @@ class Report:
         cik = COMPANIES[COMPANIES["Ticker"] == ticker].iloc[0].at["CIK"]
         return Company(name, ticker, cik)
 
+    def per_store(self, report):
+        #get company from report
+        company = report.company
+
+        #generate store count column
+        store_count = Report(company, "NumberOfStores")
+
+        #for each item in the report, divide by the number of stores for that year
+        report[report.kpi + " per store"] = report.data[report.kpi]/store_count.data["NumberOfStores"]
