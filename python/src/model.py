@@ -86,13 +86,13 @@ class Report:
         df = self.data[[self.kpi]].div(df[div], axis=0)
         df = df.dropna()
         df.rename(columns={self.kpi: f"{self.kpi} per {div}"}, inplace=True)
-        self.data = df
+        self.data = df.round(2)
 
 
 #testing
 
-myORLYReport = Report("ORLY", "NumberOfStores")
-myAZOReport = Report("AZO", "NumberOfStores")
+myORLYReport = Report("ORLY", "OperatingIncomeLoss", div="NumberOfStores")
+myAZOReport = Report("AZO", "OperatingIncomeLoss", div="NumberOfStores")
 
 
 print(myORLYReport.data)
