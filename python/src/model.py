@@ -1,7 +1,6 @@
 import pandas as pd
 import requests
 import numpy as np
-import seaborn as sb
 
 COMPANIES = pd.DataFrame(np.array([["AZO", "Autozone Inc", "0000866787"],
                                    ["ORLY", "O Reilly Automotive Inc", "0000898173"]]),
@@ -18,47 +17,83 @@ class Report:
     # config
     HEADER = {'user-agent': 'University of Memphis'}
 
-    def __init__(self, ticker : str, kpi : str, **kwargs):
+    def __init__(self, ticker : str, kpi : str, div=None, **kwargs):
         self.company = self.get_company(ticker)
         self.kpi = kpi
         self.form = kwargs.get("form")
         self.years = kwargs.get("years")
-        self.data = self.get_data()
+        self.data = self.get_data(self.company.cik, self.kpi)
+        self.units = None
+        if div:
+            self.div = div
+            self.divide(self.div)
 
 
-    def get_data(self):
-        d = requests.get(f"https://data.sec.gov/api/xbrl/companyconcept/CIK{self.company.cik}/us-gaap/{self.kpi}.json",
-                         headers=self.HEADER).json()
-        df = pd.DataFrame.from_dict(d["units"]["USD"])
-        df = df.drop(["fy", "accn", "filed", "form"], axis=1)
-        df = df[df["frame"].str.contains("Q") == False]
-        df = df.drop(["frame", "fp"], axis=1)
-        start, end = pd.to_datetime(df["start"]), pd.to_datetime(df["end"])
-        df["start"], df["end"] = start, end
-        # df = df[(df["start"].dt.month == 1) & (df["end"].dt.month == 12)]
-
-        df.index = df["start"].dt.year
-        df.index.rename("Year", inplace=True)
-        df.rename(columns={"val": self.kpi}, inplace=True)
-        df = df.drop(["start", "end"], axis=1)
-        if self.form:
-            df = df[df["form"] == f"{self.form}"]
-        if self.years:
-            df = df[(df["start"] >= f"{self.years[0]}-01-01") & (df["end"] <= f"{self.years[1]}-12-31") & (df["end"].dt.month == 12) & (df["start"].dt.month == 1)]
-        df = df.drop_duplicates()
+    def combine_rows(self, df):
+        temp = []
+        # pops out first row
+        first = df.iloc[0]
+        first = pd.DataFrame.from_dict(df.iloc[0]["units"])
+        df = df.iloc[1:, :]
+        # get the other rows and
+        for row in df.iterrows():
+            temp.append(row[1].at["units"])
+        for dictionary in temp:
+            df = first.append(dictionary, ignore_index=True)
+        print(df)
         return df
+
+    def get_data(self, cik, kpi):
+        # get the json file that contains kpi for a certain company
+        d = requests.get(f"https://data.sec.gov/api/xbrl/companyconcept/CIK{cik}/us-gaap/{kpi}.json",
+                         headers=self.HEADER).json()
+        # convert to dataframe
+        df = pd.DataFrame.from_dict(d)
+        # get the units of the data
+        self.units = list(d["units"].keys())[0]
+        # check to see if you need to combine rows
+        if len(df) > 1:
+            df = self.combine_rows(df)
+        else:
+            df = pd.DataFrame.from_dict(d["units"][self.units])
+        # drop irrelevant columns
+        df = df.drop(["fy", "accn", "filed", "form", "frame"], axis=1)
+        # get the yearly data
+        df = df[df["fp"] == "FY"]
+        df = df.drop(["fp"], axis=1)
+        # convert end dates to datetime object
+        end = pd.to_datetime(df["end"])
+        df["end"] = end
+        # set the index to years
+        df.index = df["end"].dt.year
+        df.index.rename("Year", inplace=True)
+        df.rename(columns={"val": kpi}, inplace=True)
+        # drop left over columns
+        for column in df.columns:
+            if column == "start":
+                df = df.drop(["start"], axis=1)
+        df = df.drop(["end"], axis=1)
+        # takes the max of the yearly data in case their is quarterly data left (this may not always work)
+        return df.groupby("Year").max()
 
     def get_company(self, ticker):
         name = COMPANIES[COMPANIES["Ticker"] == ticker].iloc[0].at["Name"]
         cik = COMPANIES[COMPANIES["Ticker"] == ticker].iloc[0].at["CIK"]
         return Company(name, ticker, cik)
 
-    def per_store(self, report):
-        #get company from report
-        company = report.company
+    def divide(self, div):
+        df = self.get_data(self.company.cik, div)
+        df = self.data[[self.kpi]].div(df[div], axis=0)
+        df = df.dropna()
+        df.rename(columns={self.kpi: f"{self.kpi} per {div}"}, inplace=True)
+        self.data = df
 
-        #generate store count column
-        store_count = Report(company, "NumberOfStores")
 
-        #for each item in the report, divide by the number of stores for that year
-        report[report.kpi + " per store"] = report.data[report.kpi]/store_count.data["NumberOfStores"]
+#testing
+
+myORLYReport = Report("ORLY", "NumberOfStores")
+myAZOReport = Report("AZO", "NumberOfStores")
+
+
+print(myORLYReport.data)
+print(myAZOReport.data)
