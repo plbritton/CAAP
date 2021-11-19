@@ -89,11 +89,3 @@ class Report:
         self.data = df.round(2)
 
 
-#testing
-
-myORLYReport = Report("ORLY", "OperatingIncomeLoss", div="NumberOfStores")
-myAZOReport = Report("AZO", "OperatingIncomeLoss", div="NumberOfStores")
-
-
-print(myORLYReport.data)
-print(myAZOReport.data)

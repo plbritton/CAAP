@@ -65,7 +65,7 @@ class selectionBox(QWidget):
         self.company_widgets.append(company_combo)
         self.company_layout.addLayout(row_layout)
 
-    def make_attribute_selector(self, attributes = ["GrossProfit", "NetProfit", "Time"], attribute_count = 3):
+    def make_attribute_selector(self, attributes = ["GrossProfit", "NetProfit", "OperatingIncomeLoss"], attribute_count = 3):
         while self.attribute_widgets:
             self.attribute_layout.removeWidget(self.attribute_widgets.pop())
         self.setLayout(self.attribute_layout)
@@ -81,7 +81,6 @@ class selectionBox(QWidget):
             self.attribute_widgets.append(attribute_combo)
             attribute_combo.setFixedWidth(200)
         perStoreCount = QCheckBox("Per Store?")
-
         self.attribute_layout.addWidget(perStoreCount)
         self.attribute_widgets.append(perStoreCount)
 
@@ -134,7 +133,6 @@ class Processor(QWidget):
         self.chartSelector.addItem('Line Graph')
         self.chartSelector.addItem('Pie Chart')
         self.chartSelector.addItem('Table')
-        self.chartSelector.addItem('Store Count')
         self.main_layout.addWidget(self.chartSelector)
 
         # this creates the plot widget
@@ -147,7 +145,7 @@ class Processor(QWidget):
         self.main_layout.addWidget(self.canvas)
         self.main_layout.addWidget(self.button)
 
-        self.chartTypeAttributeCount = {"Bar Graph" : 1, "Line Graph" : 1, "Pie Chart" : 1, "Table" : 1, "Store Count":0}
+        self.chartTypeAttributeCount = {"Bar Graph" : 1, "Line Graph" : 1, "Pie Chart" : 1, "Table" : 1}
 
         self.setLayout(self.main_layout)
         self.attribute_selection = selectionBox()
@@ -160,19 +158,23 @@ class Processor(QWidget):
         reports = []
         #get all companies shown on EDP page
         for company_selected in self.attribute_selection.company_widgets:
-            print(company_selected.currentText())
-            reports.append(Report(company_selected.currentText(), self.attribute_selection.attribute_widgets[0].currentText()))
-
-        #get all attributes selected on EDP page
-        for attribute_selected in self.attribute_selection.attribute_widgets:
-            print(attribute_selected.currentText())
+            report = Report(company_selected.currentText(), self.attribute_selection.attribute_widgets[0].currentText())
+            if self.attribute_selection.attribute_widgets[-1].isChecked():
+                report.divide("NumberOfStores")
+            reports.append(report)
+        #get all attributes selected on EDP page                            # :-1 excludes the 'per store' button
+        for attribute_selected in self.attribute_selection.attribute_widgets[:-1]:
+            pass
 
         # clearing old figure
         self.figure.clear()
 
-        # create an axis using KPI listed in attribute combo boxes
-        ax = self.figure.add_subplot(111, ylabel=self.attribute_selection.attribute_widgets[0].currentText(), title=self.attribute_selection.attribute_widgets[0].currentText() + " per year")
+        title = self.attribute_selection.attribute_widgets[0].currentText()
+        if self.attribute_selection.attribute_widgets[-1].isChecked():
+            title += " per Store"
 
+        # create an axis using KPI listed in attribute combo boxes
+        ax = self.figure.add_subplot(111, ylabel=self.attribute_selection.attribute_widgets[0].currentText(), title=title)
         # plot data
         for company_data in reports:
             company_data.data.plot(ax=ax)
