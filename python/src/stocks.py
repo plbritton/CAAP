@@ -1,8 +1,8 @@
 import yfinance as yf
 
 ticker = 'PBY' #PEPBOYS
-ticker2 = 'NAPA'
-ticker3 = 'AZO'
+ticker2 = 'GPC' #NAPA
+ticker3 = 'AZO' #Autozone
 
 data = yf.Ticker(ticker)
 data2 = yf.Ticker(ticker2)
