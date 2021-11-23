@@ -65,7 +65,7 @@ class selectionBox(QWidget):
         self.company_widgets.append(company_combo)
         self.company_layout.addLayout(row_layout)
 
-    def make_attribute_selector(self, attributes = ["GrossProfit", "NetProfit", "OperatingIncomeLoss"], attribute_count = 3):
+    def make_attribute_selector(self, attributes = ["AccountsPayableCurrent", "IncomeLossFromContinuingOperationsBeforeIncomeTaxesDomestic", "InventoryFinishedGoods", "NumberOfStores", "ProfitLoss", "Revenues"], attribute_count = 3):
         while self.attribute_widgets:
             self.attribute_layout.removeWidget(self.attribute_widgets.pop())
         self.setLayout(self.attribute_layout)
