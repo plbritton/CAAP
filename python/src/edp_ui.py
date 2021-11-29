@@ -8,10 +8,8 @@ from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
-import requests
-
 from python.src.model import Report
-
+import requests
 import random
 
 import sys
@@ -31,7 +29,7 @@ class selectionBox(QWidget):
         self.attribute_layout.addWidget(QLabel("Attributes: "))
         self.company_widgets = []
         self.attribute_widgets = []
-        self.tickers = []
+        self.tickersTyped = []
         self.selectionLabel = QLabel('Fill in your attributes: ', self)
         self.selectionLabel.setFont(QFont('Arial', 11))
         self.selectionLabel.setStyleSheet("font-weight: bold; color: #3C404D")
@@ -42,69 +40,75 @@ class selectionBox(QWidget):
         self.main_layout.addLayout(self.company_attribute_separator)
         self.company_attribute_separator.addLayout(self.company_layout)
         self.addRow = QPushButton(self)
+        self.submit = QPushButton(self)
         self.addRow.setText("Add Row")
-        self.addRow.clicked.connect(self.upperCase)
-        self.addRow.clicked.connect(self.make_row)
+        self.submit.setText("Submit")
+        self.addRow.clicked.connect(self.checkIfTicker)
+        self.submit.clicked.connect(self.Submit)
+        # self.addRow.clicked.connect(self.make_row)
         self.main_layout.addWidget(self.addRow)
         self.addRow.setFixedWidth(200)
+        self.main_layout.addWidget(self.submit)
+        self.submit.setFixedWidth(200)
         self.setLayout(self.main_layout)
 
+    def checkIfTicker(self):
+        value = self.tickerBar.text()
+        if value in self.d:
+            self.ticker = value.upper()
+            self.tickersTyped.append(self.ticker)
+            self.make_row()
+        else:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Critical)
+            msg.setText("Error")
+            msg.setInformativeText('Ticker not found!')
+            msg.setWindowTitle("Error")
+            msg.exec_()
+            return
 
     def make_row(self):
-        row_layout = QHBoxLayout()
-        row_layout.setAlignment(Qt.AlignLeft)
+        self.row_layout = QHBoxLayout()
+        self.row_layout.setAlignment(Qt.AlignLeft)
 
-        # company label
+        #company label
         self.company_label = QLabel(f'Company {len(self.company_widgets)+1}: ', self)
         self.company_label.setFont(QFont('Arial', 11))
+        self.row_layout.addWidget(self.company_label)
         self.company_label.setFixedWidth(300)
-        row_layout.addWidget(self.company_label)
 
-        # creating a line edit
         self.tickerBar = QLineEdit(self)
         self.tickerBar.setFixedWidth(140)
         self.tickerBar.setMaxLength(10)
         self.tickerBar.setFont(QFont("Arial", 10))
-        row_layout.addWidget(self.tickerBar)
 
+        # self.ticker = self.tickerBar.text()
+        # self.tickersTyped.append(self.ticker)
+        print(self.tickersTyped)
         HEADER = {'user-agent': 'Bob'}
         self.d = requests.get(f"https://www.sec.gov/include/ticker.txt",
                               headers=HEADER).text
-        self.tickers.append(self.tickerBar)
-        self.company_layout.addLayout(row_layout)
 
-    def mousePressEvent(self, QMouseEvent):
-        for tick in self.tickers:
-            value = self.tickerBar.text()
-            self.tickerBar.setText(value.upper())
-            # if value in self.d:
-            #     ticker = value
-            #     print(ticker)
-            # else:
-            #     msg = QMessageBox()
-            #     msg.setIcon(QMessageBox.Critical)
-            #     msg.setText("Error")
-            #     msg.setInformativeText('Ticker not found!')
-            #     msg.setWindowTitle("Error")
-            #     msg.exec_()
+        self.company_layout.addLayout(self.row_layout)
+        self.row_layout.addWidget(self.tickerBar)
+        self.company_widgets.append(self.tickerBar)
 
-    def upperCase(self):
-        for tick in self.tickers:
-            value = self.tickerBar.text()
-            self.tickerBar.setText(value.upper())
-            # if value in self.d:
-            #     ticker = value
-            #     print(ticker)
-            # else:
-            #     msg = QMessageBox()
-            #     msg.setIcon(QMessageBox.Critical)
-            #     msg.setText("Error")
-            #     msg.setInformativeText('Ticker not found!')
-            #     msg.setWindowTitle("Error")
-            #     msg.exec_()
-            #     self.make_row()
+    def Submit(self):
+        value = self.tickerBar.text()
+        if value in self.d:
+            self.ticker = self.tickerBar.text().upper()
+            self.tickersTyped.append(self.ticker)
+            print(self.tickersTyped)
+        else:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Critical)
+            msg.setText("Error")
+            msg.setInformativeText('Ticker not found!')
+            msg.setWindowTitle("Error")
+            msg.exec_()
+            return
 
-    def make_attribute_selector(self, attributes = ["GrossProfit", "NetProfit", "OperatingIncomeLoss"], attribute_count = 3):
+    def make_attribute_selector(self, attributes = ["AccountsPayableCurrent", "IncomeLossFromContinuingOperationsBeforeIncomeTaxesDomestic", "InventoryFinishedGoods", "NumberOfStores", "ProfitLoss", "Revenues"], attribute_count = 3):
         while self.attribute_widgets:
             self.attribute_layout.removeWidget(self.attribute_widgets.pop())
         self.setLayout(self.attribute_layout)
