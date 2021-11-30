@@ -22,10 +22,12 @@ class Report:
         self.kpi = kpi
         self.form = kwargs.get("form")
         self.years = kwargs.get("years")
-        self.data = self.get_data(self.company.cik, self.kpi)
+        self.div = div
         self.units = None
-        if div:
-            self.div = div
+        self.data = self.get_data(self.company.cik, self.kpi)
+
+
+        if self.div:
             self.divide(self.div)
 
 
@@ -40,7 +42,6 @@ class Report:
             temp.append(row[1].at["units"])
         for dictionary in temp:
             df = first.append(dictionary, ignore_index=True)
-        print(df)
         return df
 
     def get_data(self, cik, kpi):
@@ -50,12 +51,15 @@ class Report:
         # convert to dataframe
         df = pd.DataFrame.from_dict(d)
         # get the units of the data
-        self.units = list(d["units"].keys())[0]
+        if not self.div:
+            self.units = list(d["units"].keys())[-1]
+        else:
+            pass
         # check to see if you need to combine rows
         if len(df) > 1:
             df = self.combine_rows(df)
         else:
-            df = pd.DataFrame.from_dict(d["units"][self.units])
+            df = pd.DataFrame.from_dict(d["units"][list(d["units"].keys())[0]])
         # drop irrelevant columns
         df = df.drop(["fy", "accn", "filed", "form", "frame"], axis=1)
         # get the yearly data
@@ -82,10 +86,13 @@ class Report:
         return Company(name, ticker, cik)
 
     def divide(self, div):
+        self.div = True
         df = self.get_data(self.company.cik, div)
         df = self.data[[self.kpi]].div(df[div], axis=0)
         df = df.dropna()
         df.rename(columns={self.kpi: f"{self.kpi} per {div}"}, inplace=True)
         self.data = df.round(2)
 
-
+orly = Report("ORLY", "GrossProfit")
+orly.divide("NumberOfStores")
+print(orly.units)

@@ -9,6 +9,7 @@ from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as Navigatio
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 from python.src.model import Report
+import pandas as pd
 
 import random
 
@@ -65,7 +66,7 @@ class selectionBox(QWidget):
         self.company_widgets.append(company_combo)
         self.company_layout.addLayout(row_layout)
 
-    def make_attribute_selector(self, attributes = ["GrossProfit", "NetProfit", "OperatingIncomeLoss"], attribute_count = 3):
+    def make_attribute_selector(self, attributes=["GrossProfit", "NetProfit", "OperatingIncomeLoss", "NumberOfStores"], attribute_count = 3):
         while self.attribute_widgets:
             self.attribute_layout.removeWidget(self.attribute_widgets.pop())
         self.setLayout(self.attribute_layout)
@@ -131,8 +132,6 @@ class Processor(QWidget):
         self.chartSelector.setStyleSheet('QComboBox {border: 2px solid gray;}')
         self.chartSelector.addItem('Bar Graph')
         self.chartSelector.addItem('Line Graph')
-        self.chartSelector.addItem('Pie Chart')
-        self.chartSelector.addItem('Table')
         self.main_layout.addWidget(self.chartSelector)
 
         # this creates the plot widget
@@ -145,7 +144,7 @@ class Processor(QWidget):
         self.main_layout.addWidget(self.canvas)
         self.main_layout.addWidget(self.button)
 
-        self.chartTypeAttributeCount = {"Bar Graph" : 1, "Line Graph" : 1, "Pie Chart" : 1, "Table" : 1}
+        self.chartTypeAttributeCount = {"Bar Graph" : 1, "Line Graph" : 1}
 
         self.setLayout(self.main_layout)
         self.attribute_selection = selectionBox()
@@ -156,15 +155,22 @@ class Processor(QWidget):
     def plot(self):
         # create reports
         reports = []
+        reports_data = []
+        units = None
         #get all companies shown on EDP page
         for company_selected in self.attribute_selection.company_widgets:
             report = Report(company_selected.currentText(), self.attribute_selection.attribute_widgets[0].currentText())
             if self.attribute_selection.attribute_widgets[-1].isChecked():
                 report.divide("NumberOfStores")
             reports.append(report)
+            reports_data.append(report.data)
         #get all attributes selected on EDP page                            # :-1 excludes the 'per store' button
         for attribute_selected in self.attribute_selection.attribute_widgets[:-1]:
             pass
+        # get units
+        units = reports[0].units
+        if self.attribute_selection.attribute_widgets[-1].isChecked():
+            units = units + " / per store"
 
         # clearing old figure
         self.figure.clear()
@@ -174,10 +180,15 @@ class Processor(QWidget):
             title += " per Store"
 
         # create an axis using KPI listed in attribute combo boxes
-        ax = self.figure.add_subplot(111, ylabel=self.attribute_selection.attribute_widgets[0].currentText(), title=title)
-        # plot data
-        for company_data in reports:
-            company_data.data.plot(ax=ax)
+        print(reports[0].units)
+        ax = self.figure.add_subplot(111, ylabel=units, title=title)
+        ax.ticklabel_format(axis='both', style='sci')
+        combine = pd.concat(reports_data, axis=1)
+        if self.chartSelector.currentText() == 'Bar Graph':
+            combine.plot.bar(ax=ax)
+        elif self.chartSelector.currentText() == 'Line Graph':
+            combine.plot(ax=ax)
+
         ax.legend([company_data.company.name for company_data in reports])
 
         # refresh canvas
@@ -186,6 +197,10 @@ class Processor(QWidget):
     def modify_attributes(self):
         self.attribute_selection.make_attribute_selector(
             attribute_count=self.chartTypeAttributeCount[self.chartSelector.currentText()])
+
+    def modify_time(self):
+        pass
+
 
 
 class Window(QWidget):
@@ -216,3 +231,7 @@ class Window(QWidget):
         self.setStyleSheet(stylesheet)
 
         self.showMaximized()
+
+
+
+
