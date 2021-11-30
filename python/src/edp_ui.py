@@ -53,7 +53,7 @@ class selectionBox(QWidget):
         self.setLayout(self.main_layout)
 
     def checkIfTicker(self):
-        value = self.tickerBar.text()
+        value = self.tickerBar.text().lower()
         if value in self.d:
             self.ticker = value.upper()
             self.tickersTyped.append(self.ticker)
@@ -94,19 +94,7 @@ class selectionBox(QWidget):
         self.company_widgets.append(self.tickerBar)
 
     def Submit(self):
-        value = self.tickerBar.text()
-        if value in self.d:
-            self.ticker = self.tickerBar.text().upper()
-            self.tickersTyped.append(self.ticker)
-            print(self.tickersTyped)
-        else:
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Critical)
-            msg.setText("Error")
-            msg.setInformativeText('Ticker not found!')
-            msg.setWindowTitle("Error")
-            msg.exec_()
-            return
+        self.checkIfTicker()
 
     def make_attribute_selector(self, attributes = ["AccountsPayableCurrent", "IncomeLossFromContinuingOperationsBeforeIncomeTaxesDomestic", "InventoryFinishedGoods", "NumberOfStores", "ProfitLoss", "Revenues"], attribute_count = 3):
         while self.attribute_widgets:
