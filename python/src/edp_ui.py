@@ -98,7 +98,7 @@ class selectionBox(QWidget):
         if value in self.d:
             self.ticker = value.upper()
             self.tickersTyped.append(self.ticker)
-            self.make_row()
+            print(self.tickersTyped)
         else:
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Critical)
