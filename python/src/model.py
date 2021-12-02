@@ -93,6 +93,6 @@ class Report:
         df.rename(columns={self.kpi: f"{self.kpi} per {div}"}, inplace=True)
         self.data = df.round(2)
 
-orly = Report("ORLY", "GrossProfit")
-orly.divide("NumberOfStores")
-print(orly.units)
+# orly = Report("ORLY", "GrossProfit")
+# orly.divide("NumberOfStores")
+# print(orly.data)

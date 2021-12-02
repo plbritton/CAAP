@@ -4,15 +4,17 @@ from PyQt5.QtCore import *
 from PyQt5 import QtGui
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import sys
-from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolbar
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 from python.src.model import Report
 import requests
 import random
+import pandas as pd
 
 import sys
+
 
 #contains company selectors and attribute selectors on the data processing page
 class selectionBox(QWidget):
@@ -84,7 +86,6 @@ class selectionBox(QWidget):
 
         # self.ticker = self.tickerBar.text()
         # self.tickersTyped.append(self.ticker)
-        print(self.tickersTyped)
         HEADER = {'user-agent': 'Bob'}
         self.d = requests.get(f"https://www.sec.gov/include/ticker.txt",
                               headers=HEADER).text
@@ -98,7 +99,6 @@ class selectionBox(QWidget):
         if value in self.d:
             self.ticker = self.tickerBar.text().upper()
             self.tickersTyped.append(self.ticker)
-            print(self.tickersTyped)
         else:
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Critical)
@@ -175,6 +175,7 @@ class Processor(QWidget):
         self.chartSelector.addItem('Bar Graph')
         self.chartSelector.addItem('Line Graph')
         self.main_layout.addWidget(self.chartSelector)
+        self.attribute_selection = selectionBox()
 
         # this creates the plot widget
         self.figure = plt.figure()
@@ -189,7 +190,7 @@ class Processor(QWidget):
         self.chartTypeAttributeCount = {"Bar Graph" : 1, "Line Graph" : 1, "Pie Chart" : 1, "Table" : 1}
 
         self.setLayout(self.main_layout)
-        self.attribute_selection = selectionBox()
+
         self.modify_attributes()
         self.chartSelector.activated[str].connect(self.modify_attributes)
         self.main_layout.addWidget(self.attribute_selection)
@@ -199,9 +200,11 @@ class Processor(QWidget):
         reports = []
         reports_data = []
         units = None
+        print(self.attribute_selection.tickersTyped)
         #get all companies shown on EDP page
-        for company_selected in self.attribute_selection.company_widgets:
-            report = Report(company_selected.currentText(), self.attribute_selection.attribute_widgets[0].currentText())
+        for ticker in self.attribute_selection.tickersTyped:
+            print(ticker)
+            report = Report(ticker, self.attribute_selection.attribute_widgets[0].currentText())
             if self.attribute_selection.attribute_widgets[-1].isChecked():
                 report.divide("NumberOfStores")
             reports.append(report)
@@ -222,7 +225,6 @@ class Processor(QWidget):
             title += " per Store"
 
         # create an axis using KPI listed in attribute combo boxes
-        print(reports[0].units)
         ax = self.figure.add_subplot(111, ylabel=units, title=title)
         ax.ticklabel_format(axis='both', style='sci')
         combine = pd.concat(reports_data, axis=1)
