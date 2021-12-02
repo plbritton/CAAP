@@ -210,7 +210,7 @@ class selectionBox(QWidget):
         self.attribute_layout.addWidget(QLabel("Attributes: "))
         self.company_widgets = []
         self.attribute_widgets = []
-        self.tickersTyped = set([])
+        self.tickersTyped = []
         self.selectionLabel = QLabel('Fill in your attributes: ', self)
         self.selectionLabel.setFont(QFont('Arial', 11))
         self.selectionLabel.setStyleSheet("font-weight: bold; color: #3C404D")
@@ -234,10 +234,10 @@ class selectionBox(QWidget):
         self.setLayout(self.main_layout)
 
     def checkIfTicker(self):
-        value = self.tickerBar.text().lower()
-        if value and value in self.d:
+        value = self.tickerBar.text()
+        if value in self.d:
             self.ticker = value.upper()
-            self.tickersTyped.add(self.ticker)
+            self.tickersTyped.append(self.ticker)
             self.make_row()
         else:
             msg = QMessageBox()
@@ -265,7 +265,6 @@ class selectionBox(QWidget):
 
         # self.ticker = self.tickerBar.text()
         # self.tickersTyped.append(self.ticker)
-        print(self.tickersTyped)
         HEADER = {'user-agent': 'Bob'}
         self.d = requests.get(f"https://www.sec.gov/include/ticker.txt",
                               headers=HEADER).text
@@ -275,11 +274,10 @@ class selectionBox(QWidget):
         self.company_widgets.append(self.tickerBar)
 
     def Submit(self):
-        value = self.tickerBar.text().lower()
-        if value and value in self.d:
-            self.ticker = value.upper()
-            self.tickersTyped.add(self.ticker)
-            print(self.tickersTyped)
+        value = self.tickerBar.text()
+        if value in self.d:
+            self.ticker = self.tickerBar.text().upper()
+            self.tickersTyped.append(self.ticker)
         else:
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Critical)
@@ -355,9 +353,8 @@ class Processor(QWidget):
         self.chartSelector.setStyleSheet('QComboBox {border: 2px solid gray;}')
         self.chartSelector.addItem('Bar Graph')
         self.chartSelector.addItem('Line Graph')
-        self.chartSelector.addItem('Pie Chart')
-        self.chartSelector.addItem('Table')
         self.main_layout.addWidget(self.chartSelector)
+        self.attribute_selection = selectionBox()
 
         # this creates the plot widget
         self.figure = plt.figure()
@@ -372,26 +369,32 @@ class Processor(QWidget):
         self.chartTypeAttributeCount = {"Bar Graph" : 1, "Line Graph" : 1, "Pie Chart" : 1, "Table" : 1}
 
         self.setLayout(self.main_layout)
-        self.attribute_selection = selectionBox()
+
         self.modify_attributes()
         self.chartSelector.activated[str].connect(self.modify_attributes)
         self.main_layout.addWidget(self.attribute_selection)
 
     def plot(self):
-        print("entered plot")
         # create reports
         reports = []
+        reports_data = []
+        units = None
+        print(self.attribute_selection.tickersTyped)
         #get all companies shown on EDP page
-        for company_selected in self.attribute_selection.company_widgets:
-            print(f"Company: {company_selected.currentText}")
-            report = Report(company_selected.currentText(), self.attribute_selection.attribute_widgets[0].currentText())
+        for ticker in self.attribute_selection.tickersTyped:
+            print(ticker)
+            report = Report(ticker, self.attribute_selection.attribute_widgets[0].currentText())
             if self.attribute_selection.attribute_widgets[-1].isChecked():
                 report.divide("NumberOfStores")
             reports.append(report)
-        print("created report")
+            reports_data.append(report.data)
         #get all attributes selected on EDP page                            # :-1 excludes the 'per store' button
         for attribute_selected in self.attribute_selection.attribute_widgets[:-1]:
             pass
+        # get units
+        units = reports[0].units
+        if self.attribute_selection.attribute_widgets[-1].isChecked():
+            units = units + " / per store"
 
         # clearing old figure
         self.figure.clear()
@@ -401,10 +404,14 @@ class Processor(QWidget):
             title += " per Store"
 
         # create an axis using KPI listed in attribute combo boxes
-        ax = self.figure.add_subplot(111, ylabel=self.attribute_selection.attribute_widgets[0].currentText(), title=title)
-        # plot data
-        for company_data in reports:
-            company_data.data.plot(ax=ax)
+        ax = self.figure.add_subplot(111, ylabel=units, title=title)
+        ax.ticklabel_format(axis='both', style='sci')
+        combine = pd.concat(reports_data, axis=1)
+        if self.chartSelector.currentText() == 'Bar Graph':
+            combine.plot.bar(ax=ax)
+        elif self.chartSelector.currentText() == 'Line Graph':
+            combine.plot(ax=ax)
+
         ax.legend([company_data.company.name for company_data in reports])
 
         # refresh canvas
@@ -413,8 +420,6 @@ class Processor(QWidget):
     def modify_attributes(self):
         self.attribute_selection.make_attribute_selector(
             attribute_count=self.chartTypeAttributeCount[self.chartSelector.currentText()])
-
-
 class Window(QWidget):
 
     def __init__(self):
