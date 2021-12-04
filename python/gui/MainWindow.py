@@ -14,7 +14,7 @@ class Window(QWidget):
         self.setLayout(layout)
 
         dash = Dashboard()
-        processor = Processor2()
+        processor = Processor()
 
         # tab initialization
         tabwidget = QTabWidget()
