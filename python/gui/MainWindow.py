@@ -2,7 +2,7 @@ from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QWidget, QTabWidget, QVBoxLayout
 from python.gui.Dashboard import Dashboard
 from python.gui.Processor import Processor
-
+from python.gui.News import News
 
 class Window(QWidget):
 
@@ -15,11 +15,13 @@ class Window(QWidget):
 
         dash = Dashboard()
         processor = Processor()
+        news = News()
 
         # tab initialization
         tabwidget = QTabWidget()
         tabwidget.addTab(dash, "Dashboard")
         tabwidget.addTab(processor, "EDGAR Data Processor (EDP)")
+        tabwidget.addTab(news, "News")
 
         #testing
 
