@@ -1,16 +1,16 @@
 import feedparser
-from PyQt5.QtWidgets import QWidget, QTableWidget, QHeaderView, QLabel, QHBoxLayout, QVBoxLayout, QListWidget
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout, QScrollArea
+from PyQt5.Qt import QFont
 
 
 
 
-class News(QWidget):
+class News(QScrollArea):
     def __init__(self):
         super(News, self).__init__()
 
-        self.mainLayout = QVBoxLayout()
-        self.setLayout(self.mainLayout)
+        widget = QWidget()
+        layout = QVBoxLayout(widget)
 
         # news feed code
         def parseRSS(rss_url):
@@ -56,8 +56,10 @@ class News(QWidget):
         for h, url in zip(allheadlines, allhyperlinks):
             headline = QLabel()
             headline.setOpenExternalLinks(True)
+            headline.setFont(QFont('Arial', 12))
             headline.setText(f'<a href={url}> {h} </a>')
             headline.setMaximumWidth(800)
-            headline.setMinimumHeight(40)
-            self.mainLayout.addWidget(headline)
-            print(h)
+            layout.addWidget(headline)
+
+        self.setWidget(widget)
+        self.setWidgetResizable(True)
