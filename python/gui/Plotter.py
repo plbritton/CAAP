@@ -1,5 +1,5 @@
 from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QComboBox, QPushButton
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QComboBox, QPushButton, QLabel
 from PyQt5.QtCore import Qt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
@@ -25,7 +25,12 @@ class Plotter(QWidget):
         self.canvas = FigureCanvas(self.figure)
         self.toolbar = NavigationToolbar(self.canvas, self)
         self.plotButton = QPushButton('Plot')
+        self.plotErrorLabel = QLabel()
+        self.plotErrorLabel.setAlignment(Qt.AlignCenter)
+        self.plotErrorLabel.setProperty("Error", False)
+        self.plotErrorLabel.setStyleSheet("color: red")
 
         self.layout().addWidget(self.toolbar)
         self.layout().addWidget(self.canvas)
         self.layout().addWidget(self.plotButton)
+        self.layout().addWidget(self.plotErrorLabel)

@@ -11,6 +11,7 @@ class AttributeSelector(QWidget):
         self.attributes = []
 
         label = QLabel("Attributes: ")
+        label.setFont(QFont("Arial", 12))
         self.layout().addWidget(label)
 
         self.make_attribute_selector()

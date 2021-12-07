@@ -1,3 +1,5 @@
+import json.decoder
+
 import pandas as pd
 import requests
 import numpy as np
@@ -12,10 +14,9 @@ class Company:
         self.ticker = ticker
         self.cik = cik
 
-
 class Report:
     # config
-    HEADER = {'user-agent': 'University of Memphis'}
+    HEADER = {'user-agent': 'Billy'}
 
     def __init__(self, ticker : str, kpi : str, div=None, **kwargs):
         self.company = self.get_company(ticker)
@@ -45,9 +46,13 @@ class Report:
         return df
 
     def get_data(self, cik, kpi):
-        # get the json file that contains kpi for a certain company
-        d = requests.get(f"https://data.sec.gov/api/xbrl/companyconcept/CIK{cik}/us-gaap/{kpi}.json",
-                         headers=self.HEADER).json()
+        try:
+            # get the json file that contains kpi for a certain company
+            d = requests.get(f"https://data.sec.gov/api/xbrl/companyconcept/CIK{cik}/us-gaap/{kpi}.json",
+                             headers=self.HEADER).json()
+        except ValueError as err:
+            raise err
+
         # convert to dataframe
         df = pd.DataFrame.from_dict(d)
         # get the units of the data
@@ -79,6 +84,7 @@ class Report:
         df = df.drop(["end"], axis=1)
         # takes the max of the yearly data in case their is quarterly data left (this may not always work)
         return df.groupby("Year").max()
+
 
     def get_company(self, ticker):
         name = COMPANIES[COMPANIES["Ticker"] == ticker].iloc[0].at["Name"]

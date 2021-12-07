@@ -1,39 +1,61 @@
 from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QWidget, QTabWidget, QVBoxLayout
+from PyQt5.QtWidgets import QWidget, QTabWidget, QVBoxLayout, QMenuBar, QMainWindow, QAction, QMenu, QFileDialog
 from python.gui.Dashboard import Dashboard
 from python.gui.Processor import Processor
-from python.gui.News import News
+import pandas
+
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle('Competitor Awareness Application (CAAP)')
+
+        self._createActions()
+        self._createMenuBar()
+        self.window = Window()
+        self.setCentralWidget(self.window)
+
+        self.showMaximized()
+
+    def _createMenuBar(self):
+        menuBar = self.menuBar()
+        # File menu
+        fileMenu = QMenu("&File", self)
+        menuBar.addMenu(fileMenu)
+        fileMenu.addAction(self.exportAction)
+
+    def _createActions(self):
+        self.exportAction = QAction("&Export", self)
+        self.exportAction.triggered.connect(self.export)
+
+    def export(self):
+        name = QFileDialog.getSaveFileName(self, 'Save File')
+        try:
+            self.window.processor.data.to_excel(name)
+        except Exception:
+            print("No data to save")
+            return
+
+
+
+
 
 class Window(QWidget):
 
     def __init__(self):
-        QWidget.__init__(self)
+        super().__init__()
         # main window setup
         layout = QVBoxLayout()
-        self.setWindowTitle('Competitor Awareness Application (CAAP)')
         self.setLayout(layout)
 
-        dash = Dashboard()
-        processor = Processor()
-        news = News()
+        menu_bar = QMenuBar()
+
+        self.dash = Dashboard()
+        self.processor = Processor()
 
         # tab initialization
         tabwidget = QTabWidget()
-        tabwidget.addTab(dash, "Dashboard")
-        tabwidget.addTab(processor, "EDGAR Data Processor (EDP)")
-        tabwidget.addTab(news, "News")
-
-        #testing
-
-        tabwidget.setFont(QFont('Arial', 10))
+        tabwidget.addTab(self.dash, "Dashboard")
+        tabwidget.addTab(self.processor, "EDGAR Data Processor (EDP)")
 
         layout.addWidget(tabwidget)
 
-        stylesheet = """ 
-            QTabBar::tab:selected {background: #9c6879;}
-            QTabWidget>QWidget>QWidget{background: #F4f4f4;}
-            """
-
-        self.setStyleSheet(stylesheet)
-
-        self.showMaximized()

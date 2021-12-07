@@ -11,6 +11,8 @@ class News(QScrollArea):
 
         widget = QWidget()
         layout = QVBoxLayout(widget)
+        heading = QLabel("News")
+        layout.addWidget(QLabel("News"))
 
         # news feed code
         def parseRSS(rss_url):
@@ -58,7 +60,6 @@ class News(QScrollArea):
             headline.setOpenExternalLinks(True)
             headline.setFont(QFont('Arial', 12))
             headline.setText(f'<a href={url}> {h} </a>')
-            headline.setMaximumWidth(800)
             layout.addWidget(headline)
 
         self.setWidget(widget)

@@ -1,31 +1,34 @@
-from PyQt5.QtWidgets import QWidget, QTableWidget, QHeaderView, QLabel, QHBoxLayout
+from PyQt5.QtWidgets import QWidget, QTableWidget, QHeaderView, QLabel, QHBoxLayout, QVBoxLayout
+from python.src.stocks import Stocks
 from PyQt5.QtCore import Qt
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from python.gui.News import News
+
+
 
 class Dashboard(QWidget):
     def __init__(self):
-        super(Dashboard, self).__init__()
-        self.initUI()
+        super().__init__()
 
-    def initUI(self):
-        stocks = QTableWidget(self)
-        stocks.setColumnCount(2)
-        stocks.setRowCount(4)
-        stocks.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-        stocks.verticalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        self.mainLayout = QHBoxLayout(self)
+        self.setLayout(self.mainLayout)
 
-        stocks.setHorizontalHeaderLabels(["Stock Price", "Stock Change"])
-        stocks.setVerticalHeaderLabels(["Autozone", "Oreilly", "Pepboys", "Dr. Yu's \n auto shop"])
-        graph = QLabel("Some stuff can go here")
-        graph.setMinimumWidth(1000)
-        graph.setAlignment(Qt.AlignCenter)
+        self.plotLayout = QVBoxLayout(self)
+        self.mainLayout.addLayout(self.plotLayout)
 
-        self.content = []
-        self.content.append(stocks)
-        self.content.append(graph)
+        self.add_stocks_plot("azo")
+        self.add_stocks_plot("orly")
+        self.add_stocks_plot("napa")
 
-        self.layout = QHBoxLayout(self)
+        self.mainLayout.addWidget(News())
 
-        for widget in self.content:
-            self.layout.addWidget(widget)
 
-        self.setLayout(self.layout)
+    def add_stocks_plot(self, ticker):
+        figure = plt.figure()
+        canvas = FigureCanvas(figure)
+        ax = figure.add_subplot(111, title=ticker.upper() + " Stocks")
+        stocks = Stocks(ticker)
+        stocks.data.plot(ax=ax, legend=False)
+
+        self.plotLayout.addWidget(canvas)
