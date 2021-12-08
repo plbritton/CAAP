@@ -1,5 +1,4 @@
-from python.gui.MainWindow import Window
-from python.gui.MainWindow import MainWindow
+from python.src.gui.MainWindow import MainWindow
 from PyQt5.QtWidgets import QApplication
 import sys
 
