@@ -9,5 +9,3 @@ class Stocks():
         df = yf.download(tickers=self.ticker, period='1d', interval='1m')
         df = df[["Close"]]
         return df
-
-
