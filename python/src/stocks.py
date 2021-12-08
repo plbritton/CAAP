@@ -1,18 +1,11 @@
 import yfinance as yf
-import matplotlib
-import pandas as pd
 
+class Stocks():
+    def __init__(self, ticker):
+        self.ticker = ticker
+        self.data = self.get_data()
 
-d = yf.download(tickers='AZO', period = '1d', interval = '15m')
-print('this is AutoZone in realtime')
-y = d["High"]
-d.plot(y=y)
-
-# d2 = yf.download(tickers='GPC', period = '1d', interval = '15m')
-# print('this is NAPA in realtime')
-# print(d2)
-#
-# d3 = yf.download(tickers='PBY', period = '1d', interval = '15m')
-# print('this is Pep Boys in realtime')
-# print(type(d3))
-
+    def get_data(self):
+        df = yf.download(tickers=self.ticker, period='1d', interval='1m')
+        df = df[["Close"]]
+        return df
