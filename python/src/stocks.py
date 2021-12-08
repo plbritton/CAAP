@@ -1,6 +1,4 @@
 import yfinance as yf
-import matplotlib
-import pandas as pd
 
 class Stocks():
     def __init__(self, ticker):
