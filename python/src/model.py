@@ -26,8 +26,6 @@ class Report:
         self.div = div
         self.units = None
         self.data = self.get_data(self.company.cik, self.kpi)
-
-
         if self.div:
             self.divide(self.div)
 
@@ -74,6 +72,7 @@ class Report:
         end = pd.to_datetime(df["end"])
         df["end"] = end
         # set the index to years
+        # Note: This is the area of code that would have to be altered into order to filter by months. 
         df.index = df["end"].dt.year
         df.index.rename("Year", inplace=True)
         df.rename(columns={"val": kpi}, inplace=True)
@@ -83,8 +82,10 @@ class Report:
                 df = df.drop(["start"], axis=1)
         df = df.drop(["end"], axis=1)
         # takes the max of the yearly data in case their is quarterly data left (this may not always work)
-        return df.groupby("Year").max()
-
+        df = df.groupby("Year").max()
+        # Note: This data is by default set to only be in years. 
+        # Note: this selection should eventually be changed so that it is based off of a GUI element. 
+        return df
 
     def get_company(self, ticker):
         name = COMPANIES[COMPANIES["Ticker"] == ticker].iloc[0].at["Name"]
