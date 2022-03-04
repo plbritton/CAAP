@@ -34,6 +34,9 @@ class Processor(QWidget):
                     if self.attributeSelector.perStoreCount.isChecked():
                         report.divide("NumberOfStores")
                     reports.append(report)
+                    # Here is where data gets processed into the report.
+                    # This is the last moment we can alter the data.
+                    report.data = report.data.loc[[2009]]
                     reports_data.append(report.data)
                 self.plotter.figure.clear()
                 title = self.attributeSelector.attributes[0].currentText()
