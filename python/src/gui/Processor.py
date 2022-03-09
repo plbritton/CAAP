@@ -36,8 +36,30 @@ class Processor(QWidget):
                     reports.append(report)
                     # Here is where data gets processed into the report.
                     # This is the last moment we can alter the data.
-                    report.data = report.data.loc[[2009]]
                     reports_data.append(report.data)
+                #Filtering the data by a specific year. If no, will list every year.
+
+                #Note that these prompts to the users will eventually be replaced by GUI elements
+                #Where instead, the program will look at that gui element and just pull that data.
+                yearselect = input("Filter by year? y/n: ")
+                if (yearselect == "y"):
+                    # This prompt is to be replaced with pulling from the GUI. 
+                    yearselect2 = input("Range? y/n: ")
+                    # Filtering by a range of years.
+                    if (yearselect2 == "y"):
+                        # These prompts are to be replaced with pulling from the GUI.
+                        lowerrange = int(input("Lower Range of years: "))
+                        upperrange = int(input("Upper Range of years: "))
+                        for i in range(len(reports_data)):
+                            reports_data[i] = reports_data[i].loc[lowerrange:upperrange, :]
+                    # Filtering by a specific year. 
+                    else:
+                        # This prompt is to be replaced with pulling from the GUI.
+                        yearselect3 = int(input("What year: "))
+                        for i in range(len(reports_data)):
+                            reports_data[i] = reports_data[i].loc[[yearselect3]]
+                        
+                        
                 self.plotter.figure.clear()
                 title = self.attributeSelector.attributes[0].currentText()
                 if self.attributeSelector.perStoreCount.isChecked():
