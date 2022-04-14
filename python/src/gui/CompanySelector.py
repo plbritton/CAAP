@@ -60,9 +60,7 @@ class CompanySelector(QWidget):
     def check_tickers(self):
         #check inputs to see if they are all valid tickers and return true or false
         for row in self.companyRows:
-            print("Made it in checktickers")
             text = row.currentText()
-            print("Made it past currenttext")
             if bool(text) and self.tickerIsValid(text):
                 if not row.property("Valid"):
                     row.setProperty("Valid", True)
@@ -73,7 +71,6 @@ class CompanySelector(QWidget):
                 row.setProperty("Valid", False)
                 label = self.rowLayout.labelForField(row)
                 label.setStyleSheet("color: red")
-        print("Made it out of checktickers")
 
     # adding a row for a new company
     def makeRow(self):
