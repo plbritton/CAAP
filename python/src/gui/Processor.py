@@ -30,7 +30,7 @@ class Processor(QWidget):
             reports_data = []
             try:
                 for company in self.companySelector.companyRows:
-                    report = Report(company.text().upper(), self.attributeSelector.attributes[0].currentText())
+                    report = Report(company.currentText().upper(), self.attributeSelector.attributes[0].currentText())
                     if self.attributeSelector.perStoreCount.isChecked():
                         report.divide("NumberOfStores")
                     reports.append(report)
