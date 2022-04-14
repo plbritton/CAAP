@@ -4,8 +4,11 @@ import pandas as pd
 import requests
 import numpy as np
 
+
 COMPANIES = pd.DataFrame(np.array([["AZO", "Autozone Inc", "0000866787"],
-                                   ["ORLY", "O Reilly Automotive Inc", "0000898173"]]),
+                                   ["ORLY", "O Reilly Automotive Inc", "0000898173"],
+                                   ["AAP", "Advanced Auto Parts Inc", "0001158449"],
+                                   ["PBY", " Pep Boys", "0000077449"]]),
                          columns=["Ticker", "Name", "CIK"])
 
 class Company:
@@ -16,7 +19,7 @@ class Company:
 
 class Report:
     # config
-    HEADER = {'user-agent': 'Billy'}
+    HEADER = {'user-agent': 'Billy'} 
 
     def __init__(self, ticker : str, kpi : str, div=None, **kwargs):
         self.company = self.get_company(ticker)
@@ -33,7 +36,6 @@ class Report:
     def combine_rows(self, df):
         temp = []
         # pops out first row
-        first = df.iloc[0]
         first = pd.DataFrame.from_dict(df.iloc[0]["units"])
         df = df.iloc[1:, :]
         # get the other rows and
@@ -50,10 +52,16 @@ class Report:
                              headers=self.HEADER).json()
         except ValueError as err:
             raise err
-
         # convert to dataframe
         df = pd.DataFrame.from_dict(d)
-        # get the units of the data
+
+        ####### Test area for trying to get months ###############
+        
+        
+
+        ####### Test area for trying to get months ###############
+
+        # get the units of the data 
         if not self.div:
             self.units = list(d["units"].keys())[-1]
         else:
@@ -64,13 +72,16 @@ class Report:
         else:
             df = pd.DataFrame.from_dict(d["units"][list(d["units"].keys())[0]])
         # drop irrelevant columns
+        
         df = df.drop(["fy", "accn", "filed", "form", "frame"], axis=1)
         # get the yearly data
         df = df[df["fp"] == "FY"]
         df = df.drop(["fp"], axis=1)
+        
         # convert end dates to datetime object
         end = pd.to_datetime(df["end"])
         df["end"] = end
+        print(end)
         # set the index to years
         # Note: This is the area of code that would have to be altered into order to filter by months. 
         df.index = df["end"].dt.year
