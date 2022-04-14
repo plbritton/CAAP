@@ -38,10 +38,10 @@ class Processor(QWidget):
                     # This is the last moment we can alter the data.
                     reports_data.append(report.data)
                 #Filtering the data by a specific year. If no, will list every year.
-
+                
                 #Note that these prompts to the users will eventually be replaced by GUI elements
                 #Where instead, the program will look at that gui element and just pull that data.
-                yearselect = input("Filter by year? y/n: ")
+                '''yearselect = input("Filter by year? y/n: ")
                 if (yearselect == "y"):
                     # This prompt is to be replaced with pulling from the GUI. 
                     yearselect2 = input("Range? y/n: ")
@@ -58,13 +58,13 @@ class Processor(QWidget):
                         yearselect3 = int(input("What year: "))
                         for i in range(len(reports_data)):
                             reports_data[i] = reports_data[i].loc[[yearselect3]]
-                        
-                        
+                        '''
+
                 self.plotter.figure.clear()
                 title = self.attributeSelector.attributes[0].currentText()
                 if self.attributeSelector.perStoreCount.isChecked():
                     title += " Per Store"
-
+            
                 # create an axis using KPI listed in attribute combo boxes
                 ax = self.plotter.figure.add_subplot(111, ylabel=self.attributeSelector.attributes[0].currentText(), title=title)
                 # plot data
