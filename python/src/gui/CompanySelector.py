@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLineEdit, QLabel, QFormLayout
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLineEdit, QLabel, QFormLayout, QComboBox
 from PyQt5.QtGui import QFont
 from python.src.config import *
 
@@ -34,7 +34,12 @@ class CompanySelector(QWidget):
         removeRowButton.clicked.connect(self.removeRow)
         self.buttonLayout.addWidget(removeRowButton)
 
+        #Initilization. Sets the first row to be autozone. 
         self.makeRow()
+        self.companyRows[0].setCurrentIndex(0)
+        self.makeRow()
+        self.companyRows[1].setCurrentIndex(1)
+        
 
     def company_validator(self):
         valid = True
@@ -51,10 +56,11 @@ class CompanySelector(QWidget):
         else:
             return False
 
+    # Note: This function may not be needed as the input is now a combobox - Prentice
     def check_tickers(self):
         #check inputs to see if they are all valid tickers and return true or false
         for row in self.companyRows:
-            text = row.text()
+            text = row.currentText()
             if bool(text) and self.tickerIsValid(text):
                 if not row.property("Valid"):
                     row.setProperty("Valid", True)
@@ -72,7 +78,10 @@ class CompanySelector(QWidget):
         company_label = QLabel(f"Company {len(self.companyRows) + 1}:")
         company_label.setFont(QFont("Arial", 12))
 
-        entryBox = QLineEdit()
+        # List of copmanies that are supported
+        companyList = ["azo", "orly", "aap", "pby"]
+        entryBox = QComboBox()
+        entryBox.addItems(companyList)
         entryBox.setFixedWidth(100)
         entryBox.setProperty("Valid", False)
 
