@@ -68,7 +68,7 @@ class Processor(QWidget):
                 # create an axis using KPI listed in attribute combo boxes
                 ax = self.plotter.figure.add_subplot(111, ylabel=self.attributeSelector.attributes[0].currentText(), title=title)
                 # plot data
-                ax.ticklabel_format(axis='both', style='sci')
+                ax.ticklabel_format(axis='both', style='plain')
 
                 combine = pd.concat(reports_data, axis=1)
                 self.data = combine
